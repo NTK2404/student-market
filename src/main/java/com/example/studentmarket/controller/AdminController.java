@@ -49,4 +49,23 @@ public class AdminController {
         }
         return "redirect:/admin/users";
     }
+    @org.springframework.beans.factory.annotation.Autowired
+    private com.example.studentmarket.repository.ReportRepository reportRepository;
+
+    @org.springframework.web.bind.annotation.GetMapping("/reports")
+    public String manageReports(org.springframework.ui.Model model) {
+        model.addAttribute("reports", reportRepository.findAll());
+        return "admin/reports";
+    }
+    // Chức năng đổi trạng thái báo cáo thành Đã xử lý
+    @org.springframework.web.bind.annotation.PostMapping("/reports/resolve/{id}")
+    public String resolveReport(@org.springframework.web.bind.annotation.PathVariable Long id) {
+        com.example.studentmarket.entity.Report report = reportRepository.findById(id).orElse(null);
+        if (report != null) {
+            // Đổi trạng thái báo cáo thành RESOLVED (hoặc APPROVED/DONE tùy Enum của nhóm)
+            report.setStatus(com.example.studentmarket.enums.ReportStatus.RESOLVED);
+            reportRepository.save(report);
+        }
+        return "redirect:/admin/reports"; // Tải lại trang sau khi xử lý xong
+    }
 }
