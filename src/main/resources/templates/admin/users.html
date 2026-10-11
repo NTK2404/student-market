@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Quản lý Người dùng - Admin</title>
+</head>
+<body>
+<h2>Danh sách Người dùng</h2>
+<a th:href="@{/admin/dashboard}">⬅ Quay lại Dashboard</a>
+<hr>
+
+<table border="1" cellpadding="10" cellspacing="0">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Họ Tên</th>
+        <th>Email</th>
+        <th>Trạng thái</th>
+        <th>Thao tác</th>
+    </tr>
+    </thead>
+    <tbody>
+    <!-- Vòng lặp lấy dữ liệu từ database -->
+    <tr th:each="user : ${users}">
+        <td th:text="${user.id}">1</td>
+        <td th:text="${user.fullName}">Nguyễn Văn A</td>
+        <td th:text="${user.email}">nva@gmail.com</td>
+        <td th:text="${user.status}">ACTIVE</td>
+        <td>
+            <!-- Nếu ACTIVE thì hiện nút Khóa -->
+            <form th:if="${user.status.name() == 'ACTIVE'}" th:action="@{/admin/users/lock/{id}(id=${user.id})}" method="post" style="display:inline;">
+                <button type="submit" style="color: red;">Khóa tài khoản</button>
+            </form>
+
+            <!-- Nếu LOCKED thì hiện nút Mở khóa -->
+            <form th:if="${user.status.name() == 'LOCKED'}" th:action="@{/admin/users/unlock/{id}(id=${user.id})}" method="post" style="display:inline;">
+                <button type="submit" style="color: green;">Mở khóa</button>
+            </form>
+        </td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>
