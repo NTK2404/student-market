@@ -2,7 +2,6 @@ package com.example.studentmarket.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -20,14 +19,20 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(auth -> auth
-                // Khách xem được: trang chủ, danh sách tin, đăng ký, file tĩnh, ảnh upload
-                .requestMatchers("/", "/listings", "/listings/{id}", "/register",
+                // Khách xem được: trang chủ, danh sách tin, chi tiết tin (id là số),
+                // đăng ký, đăng nhập, file tĩnh, ảnh upload.
+                // Lưu ý: dùng {id:\\d+} để "/listings/new" KHÔNG bị cho phép với khách.
+                .requestMatchers("/", "/listings", "/listings/{id:\\d+}",
+                                 "/register", "/login",
                                  "/css/**", "/js/**", "/images/**", "/uploads/**").permitAll()
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 .anyRequest().authenticated())
-            // Tạm dùng trang login mặc định của Spring; sau này đổi sang .loginPage("/login")
-            .formLogin(Customizer.withDefaults())
-            .logout(l -> l.logoutSuccessUrl("/"));
+            .formLogin(form -> form
+                .loginPage("/login")      // trang đăng nhập riêng (templates/auth/login.html)
+                .permitAll())
+            .logout(logout -> logout
+                .logoutSuccessUrl("/login?logout")
+                .permitAll());
         return http.build();
     }
 }

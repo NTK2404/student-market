@@ -1,20 +1,30 @@
 <!DOCTYPE html>
-<html lang="vi" xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
-<head>
-    <meta charset="UTF-8">
-    <title>Chợ đồ cũ sinh viên</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
-</head>
-<body class="container py-4">
-    <h1>Chợ đồ cũ sinh viên</h1>
-    <p sec:authorize="!isAuthenticated()">Bạn chưa đăng nhập. <a href="/login">Đăng nhập</a></p>
-    <p sec:authorize="isAuthenticated()">
-        Xin chào <b sec:authentication="name"></b>
-    </p>
-    <form sec:authorize="isAuthenticated()" th:action="@{/logout}" method="post">
-        <button class="btn btn-outline-secondary btn-sm" type="submit">Đăng xuất</button>
-    </form>
-    <p sec:authorize="hasRole('ADMIN')" class="text-danger mt-3">Bạn đang là ADMIN.</p>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/layout :: head('Trang chủ')}"></head>
+<body class="d-flex flex-column min-vh-100">
+
+<div th:replace="~{layout/layout :: header}"></div>
+
+<main class="container flex-grow-1 py-4">
+
+    <section class="hero p-4 p-md-5 mb-4">
+        <h1 class="display-6 fw-bold">Chợ đồ cũ dành cho sinh viên</h1>
+        <p class="lead mb-0">Mua bán giáo trình, đồ điện tử, quần áo, xe cộ... ngay trong cộng đồng sinh viên.</p>
+    </section>
+
+    <section>
+        <h2 class="h5 mb-3">Danh mục</h2>
+        <div class="d-flex flex-wrap gap-2">
+            <a class="btn btn-outline-primary btn-sm" th:each="c : ${categories}"
+               th:href="@{/listings(categoryId=${c.id})}" th:text="${c.name}">Danh mục</a>
+        </div>
+    </section>
+
+    <!-- Người 2 sẽ thêm khu vực "Tin mới đăng" ở đây -->
+
+</main>
+
+<div th:replace="~{layout/layout :: footer}"></div>
+<th:block th:replace="~{layout/layout :: scripts}"></th:block>
 </body>
 </html>
