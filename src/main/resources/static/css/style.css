@@ -1,0 +1,21 @@
+:root {
+    --brand: #0d6efd;
+    --brand-dark: #0a4fb8;
+}
+
+body { background-color: #f6f8fb; }
+
+.navbar-brand { font-weight: 700; letter-spacing: .3px; }
+.navbar-brand span { color: #ffc107; }
+
+.hero {
+    background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+    color: #fff;
+    border-radius: 1rem;
+}
+
+.auth-card { max-width: 480px; margin: 0 auto; border: 0; box-shadow: 0 .5rem 1.5rem rgba(0,0,0,.08); }
+
+.site-footer { background: #1f2937; color: #cbd5e1; }
+.site-footer a { color: #e2e8f0; text-decoration: none; }
+.site-footer a:hover { text-decoration: underline; }
