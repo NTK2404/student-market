@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{layout/layout :: head('Hồ sơ người bán')}"></head>
+<body class="d-flex flex-column min-vh-100">
+
+<div th:replace="~{layout/layout :: header}"></div>
+
+<main class="container flex-grow-1 py-4">
+
+    <div th:replace="~{layout/layout :: flash}"></div>
+
+    <!-- Thông tin người bán -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body p-4">
+            <div class="d-flex flex-column flex-sm-row align-items-sm-center gap-3">
+                <img th:if="${seller.avatarUrl != null}" th:src="@{${seller.avatarUrl}}" class="avatar" alt="Ảnh đại diện">
+                <div th:unless="${seller.avatarUrl != null}" class="avatar avatar-placeholder"
+                     th:text="${#strings.toUpperCase(#strings.substring(seller.fullName, 0, 1))}">A</div>
+
+                <div class="flex-grow-1">
+                    <h1 class="h4 mb-1" th:text="${seller.fullName}">Tên người bán</h1>
+                    <div class="text-muted" th:if="${seller.university != null}" th:text="${seller.university}">Trường</div>
+                    <div class="mt-1">
+                        <span th:if="${seller.count > 0}">
+                            <span class="text-warning stars fs-5" th:text="${@reviewService.stars(seller.roundedAverage)}">★★★★☆</span>
+                            <span th:text="|${#numbers.formatDecimal(seller.average, 1, 1)} / 5 (${seller.count} đánh giá)|">4.5 / 5</span>
+                        </span>
+                        <span class="text-muted" th:if="${seller.count == 0}">Chưa có đánh giá nào</span>
+                    </div>
+                </div>
+
+                <div sec:authorize="isAuthenticated()" class="d-flex flex-column gap-2">
+                    <a class="btn btn-success btn-sm" th:if="${seller.phone != null}" th:href="|tel:${seller.phone}|"
+                       th:text="|Gọi ${seller.phone}|">Gọi</a>
+                    <a class="btn btn-outline-secondary btn-sm" th:href="|mailto:${seller.email}|">Gửi email</a>
+                </div>
+                <div sec:authorize="!isAuthenticated()" class="small text-muted">
+                    <a th:href="@{/login}">Đăng nhập</a> để xem thông tin liên hệ.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Người 2 có thể thêm danh sách "Tin đang bán của người này" ở đây -->
+
+    <!-- Đánh giá -->
+    <h2 class="h5 mb-3" th:text="|Đánh giá từ người mua (${seller.count})|">Đánh giá từ người mua</h2>
+
+    <div class="alert alert-light border" th:if="${#lists.isEmpty(reviews)}">
+        Người bán này chưa nhận được đánh giá nào.
+    </div>
+
+    <div class="card shadow-sm mb-3" th:each="rv : ${reviews}">
+        <div class="card-body">
+            <div class="d-flex align-items-center gap-3 mb-2">
+                <img th:if="${rv.reviewerAvatarUrl != null}" th:src="@{${rv.reviewerAvatarUrl}}" class="avatar-sm" alt="">
+                <div th:unless="${rv.reviewerAvatarUrl != null}" class="avatar-sm avatar-placeholder"
+                     th:text="${#strings.toUpperCase(#strings.substring(rv.reviewerName, 0, 1))}">A</div>
+                <div>
+                    <div class="fw-bold" th:text="${rv.reviewerName}">Người đánh giá</div>
+                    <div class="small text-muted" th:text="|${rv.createdAt} · Tin: ${rv.listingTitle}|">01/01/2026 · Tin: ...</div>
+                </div>
+                <div class="ms-auto text-warning stars fs-5" th:text="${@reviewService.stars(rv.rating)}">★★★★★</div>
+            </div>
+            <p class="mb-0" th:if="${rv.comment != null}" th:text="${rv.comment}">Nhận xét</p>
+        </div>
+    </div>
+
+</main>
+
+<div th:replace="~{layout/layout :: footer}"></div>
+<th:block th:replace="~{layout/layout :: scripts}"></th:block>
+</body>
+</html>

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/layout :: head('Đánh giá người bán')}"></head>
+<body class="d-flex flex-column min-vh-100">
+
+<div th:replace="~{layout/layout :: header}"></div>
+
+<main class="container flex-grow-1 py-5">
+
+    <!-- Không được đánh giá (tin không tồn tại, tin của chính mình, đã đánh giá...) -->
+    <div class="card auth-card" th:if="${blockedMessage != null}">
+        <div class="card-body p-4 text-center">
+            <h1 class="h5 mb-3">Không thể đánh giá</h1>
+            <div class="alert alert-warning" th:text="${blockedMessage}">Lý do</div>
+            <a class="btn btn-primary" th:href="@{/}">Về trang chủ</a>
+        </div>
+    </div>
+
+    <div class="card auth-card" th:unless="${blockedMessage != null}">
+        <div class="card-body p-4">
+            <h1 class="h4 mb-1 text-center">Đánh giá người bán</h1>
+            <p class="text-center text-muted mb-4">
+                <span th:text="${target.sellerName}">Người bán</span>
+                · Tin: <span th:text="${target.listingTitle}">Tên tin</span>
+            </p>
+
+            <form th:action="@{/reviews}" th:object="${reviewForm}" method="post" novalidate>
+                <input type="hidden" th:field="*{listingId}">
+
+                <div class="mb-3">
+                    <label for="rating" class="form-label">Số sao</label>
+                    <select class="form-select" id="rating" th:field="*{rating}"
+                            th:classappend="${#fields.hasErrors('rating')} ? 'is-invalid'">
+                        <option value="5">★★★★★ - Rất tốt</option>
+                        <option value="4">★★★★☆ - Tốt</option>
+                        <option value="3">★★★☆☆ - Bình thường</option>
+                        <option value="2">★★☆☆☆ - Chưa tốt</option>
+                        <option value="1">★☆☆☆☆ - Rất tệ</option>
+                    </select>
+                    <div class="invalid-feedback" th:errors="*{rating}">Lỗi</div>
+                </div>
+
+                <div class="mb-4">
+                    <label for="comment" class="form-label">Nhận xét (không bắt buộc)</label>
+                    <textarea class="form-control" id="comment" rows="4" th:field="*{comment}"
+                              placeholder="Người bán thân thiện, hàng đúng mô tả..."
+                              th:classappend="${#fields.hasErrors('comment')} ? 'is-invalid'"></textarea>
+                    <div class="invalid-feedback" th:errors="*{comment}">Lỗi</div>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100">Gửi đánh giá</button>
+                <a class="btn btn-link w-100 mt-1" th:href="@{/users/{id}(id=${target.sellerId})}">Hủy</a>
+            </form>
+        </div>
+    </div>
+</main>
+
+<div th:replace="~{layout/layout :: footer}"></div>
+<th:block th:replace="~{layout/layout :: scripts}"></th:block>
+</body>
+</html>

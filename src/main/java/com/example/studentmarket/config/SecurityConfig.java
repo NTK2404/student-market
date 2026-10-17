@@ -22,7 +22,7 @@ public class SecurityConfig {
                 // Khách xem được: trang chủ, danh sách tin, chi tiết tin (id là số),
                 // đăng ký, đăng nhập, file tĩnh, ảnh upload.
                 // Lưu ý: dùng {id:\\d+} để "/listings/new" KHÔNG bị cho phép với khách.
-                .requestMatchers("/", "/listings", "/listings/{id:\\d+}",
+                .requestMatchers("/", "/listings", "/listings/{id:\\d+}", "/users/{id:\\d+}",
                                  "/register", "/login",
                                  "/css/**", "/js/**", "/images/**", "/uploads/**").permitAll()
                 .requestMatchers("/admin/**").hasRole("ADMIN")

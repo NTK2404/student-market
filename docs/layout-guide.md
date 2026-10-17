@@ -49,3 +49,38 @@ và file tĩnh. `/admin/**` chỉ dành cho ADMIN. Cần mở thêm đường d�
 ## Form POST phải dùng `th:action`
 Dùng `<form th:action="@{/duong-dan}" method="post">` để Thymeleaf tự thêm token CSRF.
 Nếu viết `action="/duong-dan"` thường, form POST sẽ bị lỗi 403.
+
+## Thông báo sau khi redirect
+Trong controller: `redirectAttributes.addFlashAttribute("success", "Đã lưu.")` (hoặc `"error"`).
+Trong template, đặt dòng này ở đầu `<main>`:
+```html
+<div th:replace="~{layout/layout :: flash}"></div>
+```
+
+## Upload ảnh (dùng chung)
+Đã có sẵn `FileStorageService` (package `service.storage`). Ảnh được lưu trong thư mục `uploads/`
+(đã bị `.gitignore` bỏ qua) và truy cập qua đường dẫn `/uploads/...`.
+```java
+private final FileStorageService storage;   // inject qua constructor
+
+String url = storage.storeImage(multipartFile, "listings"); // trả về "/uploads/listings/<uuid>.jpg"
+// lưu url vào cột image_url trong database; trong template: th:src="@{${img.imageUrl}}"
+storage.delete(url);                         // xóa file khi xóa ảnh
+```
+Chỉ nhận JPG/PNG/WEBP/GIF, tối đa 2MB mỗi ảnh; sai thì ném `IllegalArgumentException` với thông báo tiếng Việt.
+Form upload phải có `enctype="multipart/form-data"` và dùng `th:action`.
+
+## Thông tin người bán + đánh giá (cho Người 2 gắn vào trang chi tiết tin)
+
+Đã có sẵn fragment `seller-card`: hiện ảnh, tên, trường, điểm đánh giá trung bình, số điện thoại/email
+(chỉ hiện với người đã đăng nhập) và nút "Đánh giá người bán". Chỉ cần thêm vào template chi tiết tin:
+
+```html
+<div th:replace="~{review/fragments :: seller-card(${listing.seller.id}, ${listing.id})}"></div>
+```
+- Tham số 1: **id người bán**, tham số 2: **id tin đăng**.
+- Nếu trang của bạn dùng DTO thì truyền `${dto.sellerId}`, `${dto.id}`. Đừng truyền cả đối tượng `listing.seller`
+  (lazy-loading sẽ báo `LazyInitializationException` vì `open-in-view=false`), chỉ cần truyền id.
+- Trang hồ sơ công khai của người bán: `/users/{id}` (link: `th:href="@{/users/{id}(id=${sellerId})}"`).
+- Link tới form đánh giá: `/reviews/new?listingId=<id tin>`.
+- Chỉ đánh giá được tin có trạng thái APPROVED hoặc SOLD, không đánh giá tin của chính mình, mỗi người một lần cho mỗi tin.
