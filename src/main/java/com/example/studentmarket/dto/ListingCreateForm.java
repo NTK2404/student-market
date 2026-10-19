@@ -5,6 +5,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import org.springframework.web.multipart.MultipartFile;
+import java.util.List;
 
 import java.math.BigDecimal;
 
@@ -31,4 +33,7 @@ public class ListingCreateForm {
     @NotBlank(message = "Mô tả không được để trống")
     @Size(min = 10, message = "Mô tả ít nhất 10 ký tự")
     private String description;
+
+    // Thêm trường nhận file ảnh upload
+private List<MultipartFile> images;
 }
