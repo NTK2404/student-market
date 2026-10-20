@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<body>
+
+<!--
+  Thẻ thông tin người bán. Gắn vào trang chi tiết tin:
+  <div th:replace="~{review/fragments :: seller-card(${listing.seller.id}, ${listing.id})}"></div>
+-->
+<div th:fragment="seller-card(sellerId, listingId)">
+    <div th:with="s=${@reviewService.sellerCard(sellerId)}">
+        <div class="card shadow-sm" th:if="${s != null}">
+            <div class="card-body">
+
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <img th:if="${s.avatarUrl != null}" th:src="@{${s.avatarUrl}}" class="avatar-sm" alt="Ảnh đại diện">
+                    <div th:unless="${s.avatarUrl != null}" class="avatar-sm avatar-placeholder"
+                         th:text="${#strings.toUpperCase(#strings.substring(s.fullName, 0, 1))}">A</div>
+                    <div>
+                        <a class="fw-bold text-decoration-none" th:href="@{/users/{id}(id=${s.id})}"
+                           th:text="${s.fullName}">Tên người bán</a>
+                        <div class="small text-muted" th:if="${s.university != null}" th:text="${s.university}">Trường</div>
+                        <div class="small">
+                            <span th:if="${s.count > 0}">
+                                <span class="text-warning stars" th:text="${@reviewService.stars(s.roundedAverage)}">★★★★☆</span>
+                                <span th:text="|${#numbers.formatDecimal(s.average, 1, 1)} (${s.count} đánh giá)|">4.5 (3 đánh giá)</span>
+                            </span>
+                            <span class="text-muted" th:if="${s.count == 0}">Chưa có đánh giá</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Thông tin liên hệ chỉ hiện với người đã đăng nhập -->
+                <div sec:authorize="isAuthenticated()" class="d-flex flex-wrap gap-2 mb-2">
+                    <a class="btn btn-success btn-sm" th:if="${s.phone != null}" th:href="|tel:${s.phone}|"
+                       th:text="|Gọi ${s.phone}|">Gọi</a>
+                    <a class="btn btn-outline-secondary btn-sm" th:href="|mailto:${s.email}|">Gửi email</a>
+                </div>
+                <div sec:authorize="!isAuthenticated()" class="small text-muted mb-2">
+                    <a th:href="@{/login}">Đăng nhập</a> để xem thông tin liên hệ.
+                </div>
+
+                <a class="btn btn-outline-primary btn-sm" th:if="${listingId != null and (currentUser == null or currentUser.id != s.id)}"
+                   th:href="@{/reviews/new(listingId=${listingId})}">Đánh giá người bán</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
