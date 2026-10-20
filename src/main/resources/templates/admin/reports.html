@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Quản lý Báo cáo - Admin</title>
+</head>
+<body>
+<h2>Danh sách Báo cáo Vi phạm</h2>
+<a th:href="@{/admin/dashboard}">⬅ Quay lại Dashboard</a>
+<hr>
+
+<table border="1" cellpadding="10" cellspacing="0">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Lý do báo cáo</th>
+        <th>Trạng thái</th>
+        <th>Ngày tạo</th>
+        <th>Thao tác</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="report : ${reports}">
+        <td th:text="${report.id}">1</td>
+        <td th:text="${report.reason}">Hàng giả</td>
+        <td th:text="${report.status}">PENDING</td>
+        <td th:text="${report.createdAt}">2026-10-11</td>
+        <td>
+            <!-- Nút bấm gửi yêu cầu xử lý về Server -->
+            <form th:action="@{/admin/reports/resolve/{id}(id=${report.id})}" method="post">
+                <button type="submit" style="color: blue;">Đã xử lý</button>
+            </form>
+        </td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>
