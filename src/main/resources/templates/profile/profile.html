@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/layout :: head('Hồ sơ của tôi')}"></head>
+<body class="d-flex flex-column min-vh-100">
+
+<div th:replace="~{layout/layout :: header}"></div>
+
+<main class="container flex-grow-1 py-4">
+    <div class="row g-4">
+
+        <div class="col-md-3">
+            <div th:replace="~{profile/fragments :: menu('info')}"></div>
+        </div>
+
+        <div class="col-md-9">
+            <div th:replace="~{layout/layout :: flash}"></div>
+            <div class="alert alert-danger" th:if="${param.tooBig}">Ảnh quá lớn, tối đa 2MB.</div>
+
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <h1 class="h4 mb-4">Thông tin cá nhân</h1>
+
+                    <form th:action="@{/profile}" th:object="${profileForm}" method="post"
+                          enctype="multipart/form-data" novalidate>
+
+                        <!-- Ảnh đại diện -->
+                        <div class="d-flex align-items-center gap-3 mb-4">
+                            <img th:if="${currentUser.avatarUrl != null}" th:src="@{${currentUser.avatarUrl}}"
+                                 class="avatar" alt="Ảnh đại diện">
+                            <div th:unless="${currentUser.avatarUrl != null}" class="avatar avatar-placeholder"
+                                 th:text="${#strings.toUpperCase(#strings.substring(currentUser.fullName, 0, 1))}">A</div>
+                            <div class="flex-grow-1">
+                                <label for="avatar" class="form-label">Ảnh đại diện</label>
+                                <input type="file" class="form-control" id="avatar" name="avatar"
+                                       accept="image/jpeg,image/png,image/webp,image/gif"
+                                       th:classappend="${avatarError != null} ? 'is-invalid'">
+                                <div class="invalid-feedback" th:text="${avatarError}">Lỗi ảnh</div>
+                                <div class="form-text">JPG, PNG, WEBP hoặc GIF, tối đa 2MB.</div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-control" th:value="${currentUser.email}" disabled>
+                            <div class="form-text">Email dùng để đăng nhập, không thể thay đổi.</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="fullName" class="form-label">Họ và tên <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="fullName" th:field="*{fullName}"
+                                   th:classappend="${#fields.hasErrors('fullName')} ? 'is-invalid'">
+                            <div class="invalid-feedback" th:errors="*{fullName}">Lỗi</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="phone" class="form-label">Số điện thoại</label>
+                            <input type="text" class="form-control" id="phone" th:field="*{phone}" placeholder="0912345678"
+                                   th:classappend="${#fields.hasErrors('phone')} ? 'is-invalid'">
+                            <div class="invalid-feedback" th:errors="*{phone}">Lỗi</div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="university" class="form-label">Trường</label>
+                            <input type="text" class="form-control" id="university" th:field="*{university}"
+                                   th:classappend="${#fields.hasErrors('university')} ? 'is-invalid'">
+                            <div class="invalid-feedback" th:errors="*{university}">Lỗi</div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<div th:replace="~{layout/layout :: footer}"></div>
+<th:block th:replace="~{layout/layout :: scripts}"></th:block>
+</body>
+</html>
