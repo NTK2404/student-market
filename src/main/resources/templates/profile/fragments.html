@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<!-- Menu bên trái của khu vực tài khoản: <div th:replace="~{profile/fragments :: menu('info')}"></div> -->
+<div th:fragment="menu(active)" class="list-group mb-3">
+    <a th:href="@{/profile}" class="list-group-item list-group-item-action"
+       th:classappend="${active == 'info'} ? 'active'">Thông tin cá nhân</a>
+    <a th:href="@{/profile/password}" class="list-group-item list-group-item-action"
+       th:classappend="${active == 'password'} ? 'active'">Đổi mật khẩu</a>
+    <a th:href="@{/my-listings}" class="list-group-item list-group-item-action">Tin của tôi</a>
+    <a th:href="@{/favorites}" class="list-group-item list-group-item-action">Tin yêu thích</a>
+</div>
+
+</body>
+</html>
