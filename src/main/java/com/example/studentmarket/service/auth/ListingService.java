@@ -1,4 +1,4 @@
-package com.example.studentmarket.service;
+package com.example.studentmarket.service.auth;
 
 import com.example.studentmarket.dto.ListingCreateForm;
 import com.example.studentmarket.entity.Category;
@@ -11,15 +11,17 @@ import com.example.studentmarket.repository.CategoryRepository;
 import com.example.studentmarket.repository.ListingRepository;
 import com.example.studentmarket.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -111,5 +113,24 @@ public class ListingService {
         if (listing.getSeller().getEmail().equals(username)) {
             listingRepository.delete(listing);
         }
+    }
+    
+    public Page<Listing> searchListings(String keyword, Long categoryId, BigDecimal minPrice, BigDecimal maxPrice, Pageable pageable) {
+        return listingRepository.search(keyword, categoryId, minPrice, maxPrice, pageable);
+    }
+
+    public Listing getListingDetail(Long id) {
+        Listing listing = listingRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy bài đăng với ID: " + id));
+        
+        // Tăng lượt xem tự động khi bấm vào xem chi tiết
+        listing.setViewCount(listing.getViewCount() + 1);
+        listingRepository.save(listing);
+        
+        return listing;
+    }
+
+    public List<Listing> getRelatedListings(Long categoryId, Long currentId) {
+        return listingRepository.findByCategoryIdAndIdNotAndStatus(categoryId, currentId, ListingStatus.APPROVED);
     }
 }
