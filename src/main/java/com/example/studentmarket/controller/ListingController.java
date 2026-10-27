@@ -105,6 +105,32 @@ public class ListingController {
         return "listing/list";
     }
 
+    @GetMapping("/new")
+    public String showNewForm(Model model) {
+        if (!model.containsAttribute("listingForm")) {
+            model.addAttribute("listingForm", new ListingCreateForm());
+        }
+        return "listing/create";
+    }
+
+    @PostMapping("/new")
+    public String processNewListing(
+            @Valid @ModelAttribute("listingForm") ListingCreateForm form,
+            BindingResult bindingResult,
+            @AuthenticationPrincipal UserDetails userDetails,
+            RedirectAttributes redirectAttributes) {
+
+        if (bindingResult.hasErrors()) {
+            return "listing/create";
+        }
+
+        String username = (userDetails != null) ? userDetails.getUsername() : "admin@market.local";
+        listingService.createListing(form, username);
+
+        redirectAttributes.addFlashAttribute("successMessage", "Đăng tin thành công! Tin đang chờ Admin duyệt.");
+        return "redirect:/listings/new";
+    }
+
     // Chi tiết tin đăng (Truy cập qua đường dẫn: /listings/{id})
     @GetMapping("/{id}")
     public String detail(@PathVariable Long id, Model model) {
