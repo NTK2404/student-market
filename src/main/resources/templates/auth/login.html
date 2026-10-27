@@ -13,6 +13,9 @@
             <div class="alert alert-success" th:if="${param.registered}">
                 Đăng ký thành công! Hãy đăng nhập bằng tài khoản vừa tạo.
             </div>
+            <div class="alert alert-success" th:if="${param.reset}">
+                Đặt lại mật khẩu thành công! Hãy đăng nhập bằng mật khẩu mới.
+            </div>
             <div class="alert alert-info" th:if="${param.logout}">
                 Bạn đã đăng xuất.
             </div>
@@ -29,6 +32,9 @@
                 <div class="mb-3">
                     <label for="password" class="form-label">Mật khẩu</label>
                     <input type="password" class="form-control" id="password" name="password" required>
+                    <div class="text-end mt-1">
+                        <a class="small" th:href="@{/forgot-password}">Quên mật khẩu?</a>
+                    </div>
                 </div>
                 <button type="submit" class="btn btn-primary w-100">Đăng nhập</button>
             </form>

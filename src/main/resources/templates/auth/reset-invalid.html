@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/layout :: head('Liên kết không hợp lệ')}"></head>
+<body class="d-flex flex-column min-vh-100">
+
+<div th:replace="~{layout/layout :: header}"></div>
+
+<main class="container flex-grow-1 py-5">
+    <div class="card auth-card">
+        <div class="card-body p-4 text-center">
+            <h1 class="h5 mb-3">Liên kết không hợp lệ</h1>
+            <div class="alert alert-warning">
+                Liên kết đặt lại mật khẩu đã hết hạn hoặc đã được sử dụng.
+            </div>
+            <a class="btn btn-primary" th:href="@{/forgot-password}">Gửi lại liên kết mới</a>
+        </div>
+    </div>
+</main>
+
+<div th:replace="~{layout/layout :: footer}"></div>
+<th:block th:replace="~{layout/layout :: scripts}"></th:block>
+</body>
+</html>
