@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -36,6 +37,7 @@ public class ListingService {
     private final String UPLOAD_DIR = "uploads/";
 
     // 1. Tạo tin đăng kèm upload nhiều ảnh
+    @Transactional
     public Listing createListing(ListingCreateForm form, String username) {
         User seller = userRepository.findByEmail(username)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy tài khoản người dùng: " + username));
@@ -87,6 +89,7 @@ public class ListingService {
     }
 
     // 2. Lấy danh sách tin của riêng 1 user (Trang "Tin của tôi")
+    @Transactional(readOnly = true)
     public List<Listing> getListingsBySellerEmail(String email) {
         User seller = userRepository.findByEmail(email).orElse(null);
         if (seller == null) return List.of();
@@ -96,6 +99,7 @@ public class ListingService {
     }
 
     // 3. Đổi trạng thái tin (Ẩn, Đã bán,...)
+    @Transactional
     public void updateStatus(Long id, ListingStatus status, String username) {
         Listing listing = listingRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy tin đăng"));
@@ -107,6 +111,7 @@ public class ListingService {
     }
 
     // 4. Xóa tin đăng
+    @Transactional
     public void deleteListing(Long id, String username) {
         Listing listing = listingRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy tin đăng"));
@@ -116,6 +121,7 @@ public class ListingService {
     }
 
     // 5. Cập nhật / Sửa tin đăng
+    @Transactional
     public void updateListing(Long id, ListingCreateForm form) {
         Listing listing = getListingDetail(id);
         listing.setTitle(form.getTitle());
@@ -134,20 +140,23 @@ public class ListingService {
     }
 
     // 6. Thêm / Bỏ yêu thích tin đăng (Toggle Favorite)
+    @Transactional
     public void toggleFavorite(Long id, String username) {
-        // Logic xử lý thả tim / lưu tin (bạn có thể mở rộng bảng Favorite nếu có)
+        // Logic xử lý thả tim / lưu tin
     }
 
     // 7. Lấy danh sách tin yêu thích của User
+    @Transactional(readOnly = true)
     public List<Listing> getFavoriteListings(String username) {
-        // Trả về danh sách tin đã thích (tạm thời trả về danh sách trống nếu chưa cấu hình bảng favorite)
         return List.of();
     }
     
+    @Transactional(readOnly = true)
     public Page<Listing> searchListings(String keyword, Long categoryId, BigDecimal minPrice, BigDecimal maxPrice, Pageable pageable) {
         return listingRepository.search(keyword, categoryId, minPrice, maxPrice, pageable);
     }
 
+    @Transactional
     public Listing getListingDetail(Long id) {
         Listing listing = listingRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy bài đăng với ID: " + id));
@@ -159,6 +168,7 @@ public class ListingService {
         return listing;
     }
 
+    @Transactional(readOnly = true)
     public List<Listing> getRelatedListings(Long categoryId, Long currentId) {
         return listingRepository.findByCategoryIdAndIdNotAndStatus(categoryId, currentId, ListingStatus.APPROVED);
     }
