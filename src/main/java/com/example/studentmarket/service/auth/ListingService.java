@@ -114,6 +114,35 @@ public class ListingService {
             listingRepository.delete(listing);
         }
     }
+
+    // 5. Cập nhật / Sửa tin đăng
+    public void updateListing(Long id, ListingCreateForm form) {
+        Listing listing = getListingDetail(id);
+        listing.setTitle(form.getTitle());
+        listing.setPrice(form.getPrice());
+        listing.setLocation(form.getLocation());
+        listing.setDescription(form.getDescription());
+        if (form.getCondition() != null) {
+            listing.setItemCondition(ItemCondition.valueOf(form.getCondition()));
+        }
+        if (form.getCategoryId() != null) {
+            Category category = categoryRepository.findById(form.getCategoryId())
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy danh mục id: " + form.getCategoryId()));
+            listing.setCategory(category);
+        }
+        listingRepository.save(listing);
+    }
+
+    // 6. Thêm / Bỏ yêu thích tin đăng (Toggle Favorite)
+    public void toggleFavorite(Long id, String username) {
+        // Logic xử lý thả tim / lưu tin (bạn có thể mở rộng bảng Favorite nếu có)
+    }
+
+    // 7. Lấy danh sách tin yêu thích của User
+    public List<Listing> getFavoriteListings(String username) {
+        // Trả về danh sách tin đã thích (tạm thời trả về danh sách trống nếu chưa cấu hình bảng favorite)
+        return List.of();
+    }
     
     public Page<Listing> searchListings(String keyword, Long categoryId, BigDecimal minPrice, BigDecimal maxPrice, Pageable pageable) {
         return listingRepository.search(keyword, categoryId, minPrice, maxPrice, pageable);
