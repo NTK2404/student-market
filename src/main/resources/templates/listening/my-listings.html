@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Tin của tôi</title>
+</head>
+<body>
+    <h1>Danh sách tin đăng của tôi</h1>
+    <!-- Hiển thị danh sách -->
+    <div th:each="listing : ${listings}">
+        <p th:text="${listing.title}"></p>
+    </div>
+</body>
+</html>
