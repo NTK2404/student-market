@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Đăng tin rao bán - Student Market</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body class="bg-light">
+
+<!-- Header chung (Nếu có layout) -->
+<div th:replace="~{layout/layout :: header}" th:if="${false}"></div>
+
+<div class="container my-5" style="max-width: 650px;">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Đăng tin rao bán</h5>
+        </div>
+        <div class="card-body">
+            
+            <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+                <span th:text="${successMessage}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+
+            <!-- BẮT BUỘC THÊM: enctype="multipart/form-data" để nhận file ảnh -->
+            <form th:action="@{/listings/create}" th:object="${listingForm}" method="post" enctype="multipart/form-data">
+                
+                <div class="mb-3">
+                    <label for="title" class="form-label">Tiêu đề tin đăng *</label>
+                    <input type="text" class="form-control" id="title" th:field="*{title}" placeholder="Ví dụ: Bán lại sách Giải tích 1...">
+                    <div class="text-danger small" th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="price" class="form-label">Giá bán (VNĐ) *</label>
+                        <input type="number" class="form-control" id="price" th:field="*{price}" placeholder="0">
+                        <div class="text-danger small" th:if="${#fields.hasErrors('price')}" th:errors="*{price}"></div>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label for="condition" class="form-label">Tình trạng *</label>
+                        <select class="form-select" id="condition" th:field="*{condition}">
+                            <option value="">-- Chọn tình trạng --</option>
+                            <option value="NEW">Mới</option>
+                            <option value="USED">Đã qua sử dụng</option>
+                        </select>
+                        <div class="text-danger small" th:if="${#fields.hasErrors('condition')}" th:errors="*{condition}"></div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="categoryId" class="form-label">Danh mục *</label>
+                        <select class="form-select" id="categoryId" th:field="*{categoryId}">
+                            <option value="">-- Chọn danh mục --</option>
+                            <option value="1">Đồ điện tử</option>
+                            <option value="2">Sách & Giáo trình</option>
+                            <option value="3">Đồ gia dụng KTX</option>
+                        </select>
+                        <div class="text-danger small" th:if="${#fields.hasErrors('categoryId')}" th:errors="*{categoryId}"></div>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label for="location" class="form-label">Địa điểm *</label>
+                        <input type="text" class="form-control" id="location" th:field="*{location}" placeholder="Ví dụ: KTX Khu A, ĐHQG...">
+                        <div class="text-danger small" th:if="${#fields.hasErrors('location')}" th:errors="*{location}"></div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="description" class="form-label">Mô tả chi tiết *</label>
+                    <textarea class="form-control" id="description" th:field="*{description}" rows="4" placeholder="Mô tả chi tiết sản phẩm..."></textarea>
+                    <div class="text-danger small" th:if="${#fields.hasErrors('description')}" th:errors="*{description}"></div>
+                </div>
+
+                <!-- Ô UPLOAD NHIỀU ẢNH (Đã tích hợp) -->
+                <div class="mb-3">
+                    <label for="images" class="form-label">Hình ảnh sản phẩm (có thể chọn nhiều ảnh) *</label>
+                    <input type="file" class="form-control" id="images" th:field="*{images}" multiple accept="image/*">
+                    <div class="form-text">Bạn có thể giữ phím Ctrl/Shift để chọn nhiều ảnh cùng lúc.</div>
+                </div>
+
+                <div class="d-flex justify-content-between">
+                    <a href="/" class="btn btn-outline-secondary">Hủy</a>
+                    <button type="submit" class="btn btn-primary">Tạo tin đăng</button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

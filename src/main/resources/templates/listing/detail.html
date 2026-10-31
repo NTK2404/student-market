@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/layout :: head('Chi tiết tin đăng')}"></head>
+<body class="d-flex flex-column min-vh-100">
+
+<div th:replace="~{layout/layout :: header}"></div>
+
+<main class="container flex-grow-1 py-4" th:with="x=${@listingDisplay.info(listing.id)}">
+
+    <div th:replace="~{layout/layout :: flash}"></div>
+
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a th:href="@{/}">Trang chủ</a></li>
+            <li class="breadcrumb-item"><a th:href="@{/listings}">Tin đăng</a></li>
+            <li class="breadcrumb-item active" aria-current="page" th:text="${listing.title}">Tiêu đề</li>
+        </ol>
+    </nav>
+
+    <div class="row g-4">
+
+        <!-- Ảnh -->
+        <div class="col-lg-7">
+            <div id="listingCarousel" class="carousel slide shadow-sm rounded overflow-hidden"
+                 th:if="${x != null and !#lists.isEmpty(x.imageUrls)}">
+                <div class="carousel-inner">
+                    <div class="carousel-item" th:each="u, st : ${x.imageUrls}" th:classappend="${st.first} ? 'active'">
+                        <img th:src="@{${u}}" class="d-block w-100" alt="Ảnh tin đăng"
+                             style="max-height:440px;object-fit:contain;background:#f1f3f5">
+                    </div>
+                </div>
+                <th:block th:if="${#lists.size(x.imageUrls) > 1}">
+                    <button class="carousel-control-prev" type="button" data-bs-target="#listingCarousel" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Trước</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#listingCarousel" data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Sau</span>
+                    </button>
+                </th:block>
+            </div>
+            <div class="bg-light rounded d-flex align-items-center justify-content-center text-muted"
+                 style="height:320px" th:if="${x == null or #lists.isEmpty(x.imageUrls)}">Chưa có ảnh</div>
+        </div>
+
+        <!-- Thông tin -->
+        <div class="col-lg-5">
+            <div class="alert alert-warning"
+                 th:if="${listing.status.name() != 'APPROVED' and listing.status.name() != 'SOLD'}"
+                 th:text="|Tin này chưa hiển thị công khai (trạng thái: ${listing.status})|">Trạng thái</div>
+            <span class="badge text-bg-secondary mb-2" th:if="${listing.status.name() == 'SOLD'}">Đã bán</span>
+
+            <h1 class="h4" th:text="${listing.title}">Tiêu đề</h1>
+            <div class="fs-4 fw-bold text-danger mb-3"
+                 th:text="|${#numbers.formatDecimal(listing.price, 0, 'POINT', 0, 'COMMA')} đ|">50.000 đ</div>
+
+            <table class="table table-sm mb-3">
+                <tbody>
+                <tr><th class="text-muted fw-normal" style="width:35%">Tình trạng</th>
+                    <td th:text="${@listingDisplay.conditionLabel(listing.itemCondition)}">Đã sử dụng</td></tr>
+                <tr th:if="${x != null}"><th class="text-muted fw-normal">Danh mục</th>
+                    <td><a th:href="@{/listings(categoryId=${x.categoryId})}" th:text="${x.categoryName}">Danh mục</a></td></tr>
+                <tr th:if="${listing.location != null}"><th class="text-muted fw-normal">Địa điểm</th>
+                    <td th:text="${listing.location}">KTX</td></tr>
+                <tr><th class="text-muted fw-normal">Ngày đăng</th>
+                    <td th:text="${@listingDisplay.date(listing.createdAt)}">01/01/2026</td></tr>
+                <tr><th class="text-muted fw-normal">Lượt xem</th>
+                    <td th:text="${listing.viewCount}">0</td></tr>
+                </tbody>
+            </table>
+
+            <!-- Thẻ người bán + nút đánh giá (phần của Người 1) -->
+            <th:block th:if="${x != null}">
+                <div th:replace="~{review/fragments :: seller-card(${x.sellerId}, ${listing.id})}"></div>
+            </th:block>
+        </div>
+    </div>
+
+    <!-- Mô tả -->
+    <div class="card shadow-sm mt-4">
+        <div class="card-body">
+            <h2 class="h6">Mô tả</h2>
+            <p class="mb-0" style="white-space:pre-line" th:if="${listing.description != null}"
+               th:text="${listing.description}">Mô tả</p>
+            <p class="text-muted mb-0" th:if="${listing.description == null}">Người bán chưa nhập mô tả.</p>
+        </div>
+    </div>
+
+    <!-- Tin liên quan -->
+    <section class="mt-4" th:if="${!#lists.isEmpty(relatedListings)}">
+        <h2 class="h5 mb-3">Tin liên quan</h2>
+        <div class="row row-cols-2 row-cols-md-4 g-3">
+            <div class="col" th:each="r : ${relatedListings}" th:with="rx=${@listingDisplay.info(r.id)}">
+                <a class="card h-100 shadow-sm text-decoration-none text-dark" th:href="@{/listings/{id}(id=${r.id})}">
+                    <img th:if="${rx != null and rx.primaryImage != null}" th:src="@{${rx.primaryImage}}"
+                         class="card-img-top" style="height:120px;object-fit:cover" alt="">
+                    <div th:unless="${rx != null and rx.primaryImage != null}"
+                         class="bg-light d-flex align-items-center justify-content-center text-muted small"
+                         style="height:120px">Chưa có ảnh</div>
+                    <div class="card-body p-2">
+                        <div class="small" th:text="${r.title}">Tiêu đề</div>
+                        <div class="small fw-bold text-danger"
+                             th:text="|${#numbers.formatDecimal(r.price, 0, 'POINT', 0, 'COMMA')} đ|">50.000 đ</div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<div th:replace="~{layout/layout :: footer}"></div>
+<th:block th:replace="~{layout/layout :: scripts}"></th:block>
+</body>
+</html>
