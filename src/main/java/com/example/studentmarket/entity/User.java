@@ -39,4 +39,13 @@ public class User {
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
+
+    // ----- HÀM ĐƯỢC THÊM THỦ CÔNG ĐỂ FIX LỖI CANNOT FIND SYMBOL -----
+    public Long getId() {
+        return this.id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 }
