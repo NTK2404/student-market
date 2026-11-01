@@ -31,14 +31,14 @@
                     <a class="btn btn-outline-light btn-sm" th:href="@{/register}">Đăng ký</a>
                 </li>
                 <li class="nav-item" sec:authorize="isAuthenticated()">
-                    <a class="btn btn-warning btn-sm" th:href="@{/listings/new}">+ Đăng tin</a>
+                    <a class="btn btn-warning btn-sm" th:href="@{/listings/create}">+ Đăng tin</a>
                 </li>
                 <li class="nav-item dropdown" sec:authorize="isAuthenticated()">
                     <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"
                        th:text="${currentUser != null} ? ${currentUser.fullName} : 'Tài khoản'">Tài khoản</a>
                     <ul class="dropdown-menu dropdown-menu-end">
                         <li><a class="dropdown-item" th:href="@{/profile}">Hồ sơ của tôi</a></li>
-                        <li><a class="dropdown-item" th:href="@{/my-listings}">Tin của tôi</a></li>
+                        <li><a class="dropdown-item" th:href="@{/listings/my-listings}">Tin của tôi</a></li>
                         <li><a class="dropdown-item" th:href="@{/favorites}">Tin yêu thích</a></li>
                         <li sec:authorize="hasRole('ADMIN')"><hr class="dropdown-divider"></li>
                         <!-- Đã fix đường dẫn admin/dashboard tại đây -->
@@ -66,6 +66,9 @@
         </div>
     </div>
 </footer>
+
+<!-- ============ FLASH: thông báo thành công/lỗi sau khi redirect: <div th:replace="~{layout/layout :: flash}"></div>
+     Trong controller: redirectAttributes.addFlashAttribute("success", "...") hoặc ("error", "...") ============ -->
 
 <div th:fragment="flash">
     <div class="alert alert-success mt-3" th:if="${success}" th:text="${success}"></div>

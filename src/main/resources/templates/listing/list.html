@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/layout :: head('Tin đăng')}"></head>
+<body class="d-flex flex-column min-vh-100">
+
+<div th:replace="~{layout/layout :: header}"></div>
+
+<main class="container flex-grow-1 py-4">
+
+    <div th:replace="~{layout/layout :: flash}"></div>
+
+    <h1 class="h4 mb-3">Tin đăng</h1>
+
+    <!-- Tìm kiếm và lọc -->
+    <form class="card card-body shadow-sm mb-4" th:action="@{/listings}" method="get">
+        <div class="row g-2 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label small mb-1" for="keyword">Từ khóa</label>
+                <input type="text" class="form-control" id="keyword" name="keyword" th:value="${keyword}"
+                       placeholder="Giáo trình, laptop, xe đạp...">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small mb-1" for="categoryId">Danh mục</label>
+                <select class="form-select" id="categoryId" name="categoryId">
+                    <option value="">Tất cả</option>
+                    <option th:each="c : ${categories}" th:value="${c.id}" th:text="${c.name}"
+                            th:selected="${categoryId != null and categoryId == c.id}">Danh mục</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small mb-1" for="minPrice">Giá từ</label>
+                <input type="number" min="0" class="form-control" id="minPrice" name="minPrice" th:value="${minPrice}">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small mb-1" for="maxPrice">Đến</label>
+                <input type="number" min="0" class="form-control" id="maxPrice" name="maxPrice" th:value="${maxPrice}">
+            </div>
+            <div class="col-md-1 d-grid">
+                <button type="submit" class="btn btn-primary">Lọc</button>
+            </div>
+        </div>
+    </form>
+
+    <p class="text-muted small" th:text="|${listingPage.totalElements} tin đăng|">0 tin đăng</p>
+
+    <div class="alert alert-light border" th:if="${listingPage.empty}">
+        Không tìm thấy tin đăng nào phù hợp.
+    </div>
+
+    <!-- Danh sách thẻ -->
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-3">
+        <div class="col" th:each="l : ${listingPage.content}" th:with="x=${@listingDisplay.info(l.id)}">
+            <div class="card h-100 shadow-sm">
+                <a th:href="@{/listings/{id}(id=${l.id})}">
+                    <img th:if="${x != null and x.primaryImage != null}" th:src="@{${x.primaryImage}}"
+                         class="card-img-top" style="height:180px;object-fit:cover" alt="Ảnh tin đăng">
+                    <div th:unless="${x != null and x.primaryImage != null}"
+                         class="bg-light d-flex align-items-center justify-content-center text-muted"
+                         style="height:180px">Chưa có ảnh</div>
+                </a>
+                <div class="card-body">
+                    <h2 class="h6 mb-1">
+                        <a class="text-decoration-none text-dark" th:href="@{/listings/{id}(id=${l.id})}"
+                           th:text="${l.title}">Tiêu đề</a>
+                    </h2>
+                    <div class="text-danger fw-bold"
+                         th:text="|${#numbers.formatDecimal(l.price, 0, 'POINT', 0, 'COMMA')} đ|">50.000 đ</div>
+                    <div class="small text-muted">
+                        <span th:text="${@listingDisplay.conditionLabel(l.itemCondition)}">Đã sử dụng</span>
+                        <span th:if="${l.location != null}" th:text="|· ${l.location}|">· KTX</span>
+                    </div>
+                    <div class="small text-muted" th:if="${x != null}"
+                         th:text="|${x.categoryName} · ${x.sellerName}|">Danh mục · Người bán</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Phân trang (giữ nguyên bộ lọc) -->
+    <nav class="mt-4" th:if="${listingPage.totalPages > 1}">
+        <ul class="pagination justify-content-center">
+            <li class="page-item" th:classappend="${listingPage.first} ? 'disabled'">
+                <a class="page-link"
+                   th:href="@{/listings(keyword=${keyword},categoryId=${categoryId},minPrice=${minPrice},maxPrice=${maxPrice},page=${listingPage.number - 1})}">«</a>
+            </li>
+            <li class="page-item" th:each="n : ${#numbers.sequence(0, listingPage.totalPages - 1)}"
+                th:classappend="${n == listingPage.number} ? 'active'">
+                <a class="page-link" th:text="${n + 1}"
+                   th:href="@{/listings(keyword=${keyword},categoryId=${categoryId},minPrice=${minPrice},maxPrice=${maxPrice},page=${n})}">1</a>
+            </li>
+            <li class="page-item" th:classappend="${listingPage.last} ? 'disabled'">
+                <a class="page-link"
+                   th:href="@{/listings(keyword=${keyword},categoryId=${categoryId},minPrice=${minPrice},maxPrice=${maxPrice},page=${listingPage.number + 1})}">»</a>
+            </li>
+        </ul>
+    </nav>
+
+</main>
+
+<div th:replace="~{layout/layout :: footer}"></div>
+<th:block th:replace="~{layout/layout :: scripts}"></th:block>
+</body>
+</html>
