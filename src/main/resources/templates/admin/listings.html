@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/layout :: head('Quản lý Bài đăng')}"></head>
+<body class="bg-light">
+<div th:replace="~{layout/layout :: header}"></div>
+
+<div class="container mt-4">
+    <div th:replace="~{layout/layout :: flash}"></div>
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>Danh sách Bài đăng</h2>
+        <a th:href="@{/admin/dashboard}" class="btn btn-secondary">⬅ Quay lại Dashboard</a>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                    <tr>
+                        <th>ID</th>
+                        <th>Tiêu đề</th>
+                        <th>Giá</th>
+                        <th>Trạng thái</th>
+                        <th>Thao tác</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="listing : ${listings}">
+                        <td th:text="${listing.id}">1</td>
+                        <td th:text="${listing.title}">Laptop cũ</td>
+                        <td th:text="${listing.price}">5,000,000</td>
+                        <td>
+                            <!-- Đã đồng bộ logic APPROVED -->
+                            <span class="badge" th:classappend="${listing.status.name() == 'APPROVED'} ? 'bg-success' : 'bg-danger'" th:text="${listing.status}">APPROVED</span>
+                        </td>
+                        <td>
+                            <!-- Đã đồng bộ logic APPROVED -->
+                            <form th:if="${listing.status.name() == 'APPROVED'}" th:action="@{/admin/listings/hide/{id}(id=${listing.id})}" method="post" class="d-inline">
+                                <button type="submit" class="btn btn-sm btn-outline-danger">Ẩn bài</button>
+                            </form>
+                            <form th:if="${listing.status.name() == 'HIDDEN'}" th:action="@{/admin/listings/show/{id}(id=${listing.id})}" method="post" class="d-inline">
+                                <button type="submit" class="btn btn-sm btn-outline-success">Hiện bài</button>
+                            </form>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(listings)}">
+                        <td colspan="5" class="text-center text-muted py-3">Không có bài đăng nào.</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{layout/layout :: footer}"></div>
+<th:block th:replace="~{layout/layout :: scripts}"></th:block>
+</body>
+</html>

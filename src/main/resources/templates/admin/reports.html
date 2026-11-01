@@ -1,38 +1,55 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>Quản lý Báo cáo - Admin</title>
-</head>
-<body>
-<h2>Danh sách Báo cáo Vi phạm</h2>
-<a th:href="@{/admin/dashboard}">⬅ Quay lại Dashboard</a>
-<hr>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/layout :: head('Quản lý Báo cáo')}"></head>
+<body class="bg-light">
+<div th:replace="~{layout/layout :: header}"></div>
 
-<table border="1" cellpadding="10" cellspacing="0">
-    <thead>
-    <tr>
-        <th>ID</th>
-        <th>Lý do báo cáo</th>
-        <th>Trạng thái</th>
-        <th>Ngày tạo</th>
-        <th>Thao tác</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr th:each="report : ${reports}">
-        <td th:text="${report.id}">1</td>
-        <td th:text="${report.reason}">Hàng giả</td>
-        <td th:text="${report.status}">PENDING</td>
-        <td th:text="${report.createdAt}">2026-10-11</td>
-        <td>
-            <!-- Nút bấm gửi yêu cầu xử lý về Server -->
-            <form th:action="@{/admin/reports/resolve/{id}(id=${report.id})}" method="post">
-                <button type="submit" style="color: blue;">Đã xử lý</button>
-            </form>
-        </td>
-    </tr>
-    </tbody>
-</table>
+<div class="container mt-4">
+    <div th:replace="~{layout/layout :: flash}"></div>
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>Danh sách Báo cáo Vi phạm</h2>
+        <a th:href="@{/admin/dashboard}" class="btn btn-secondary">⬅ Quay lại Dashboard</a>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                    <tr>
+                        <th>ID</th>
+                        <th>Lý do báo cáo</th>
+                        <th>Trạng thái</th>
+                        <th>Ngày tạo</th>
+                        <th>Thao tác</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="report : ${reports}">
+                        <td th:text="${report.id}">1</td>
+                        <td th:text="${report.reason}">Hàng giả</td>
+                        <td>
+                            <span class="badge" th:classappend="${report.status.name() == 'PENDING'} ? 'bg-warning text-dark' : 'bg-success'" th:text="${report.status}">PENDING</span>
+                        </td>
+                        <td th:text="${report.createdAt}">2026-10-11</td>
+                        <td>
+                            <form th:if="${report.status.name() == 'PENDING'}" th:action="@{/admin/reports/resolve/{id}(id=${report.id})}" method="post" class="d-inline">
+                                <button type="submit" class="btn btn-sm btn-outline-primary">Đã xử lý</button>
+                            </form>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(reports)}">
+                        <td colspan="5" class="text-center text-muted py-3">Hiện không có báo cáo nào cần xử lý.</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{layout/layout :: footer}"></div>
+<th:block th:replace="~{layout/layout :: scripts}"></th:block>
 </body>
 </html>
