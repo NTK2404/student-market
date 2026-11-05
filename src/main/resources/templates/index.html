@@ -16,17 +16,39 @@
         <h2 class="h5 mb-3">Danh mục</h2>
         <div class="d-flex flex-wrap gap-2">
 
-            <!-- ĐÃ THÊM: Nút "Tất cả" hiển thị đầu tiên bên trái, gửi giá trị rỗng để tránh lỗi kiểu dữ liệu -->
             <a class="btn btn-outline-primary btn-sm" th:href="@{/listings}">Tất cả</a>
 
-            <!-- Các danh mục khác tự động lấy từ Database -->
             <a class="btn btn-outline-primary btn-sm" th:each="c : ${categories}"
                th:href="@{/listings(categoryId=${c.id})}" th:text="${c.name}">Danh mục</a>
 
         </div>
     </section>
 
-    <!-- Người 2 sẽ thêm khu vực "Tin mới đăng" ở đây -->
+    <!-- Khu vực Tin mới đăng -->
+    <section class="mt-5">
+        <h2 class="h5 mb-3">Tin mới đăng</h2>
+        <div class="row row-cols-1 row-cols-md-3 g-4" th:if="${recentListings != null}">
+            <div class="col" th:each="listing : ${recentListings}" th:with="lx=${@listingDisplay.info(listing.id)}">
+                <div class="card h-100 shadow-sm border-0 overflow-hidden">
+                    <a th:href="@{/listings/{id}(id=${listing.id})}" class="bg-white d-flex align-items-center justify-content-center border-bottom text-decoration-none" style="height: 200px;">
+                        <img th:if="${lx != null and lx.primaryImage != null}" th:src="@{${lx.primaryImage}}" class="w-100 h-100" style="object-fit: cover;" alt="Ảnh tin đăng">
+                        <span th:unless="${lx != null and lx.primaryImage != null}" class="text-muted small">Chưa có ảnh</span>
+                    </a>
+                    <div class="card-body">
+                        <h5 class="card-title text-truncate mb-1" th:text="${listing.title != null ? listing.title : 'Chưa có tiêu đề'}">Tiêu đề</h5>
+                        <h6 class="card-subtitle mb-2 text-danger fw-bold" th:text="${listing.price != null ? #numbers.formatInteger(listing.price, 1, 'COMMA') + ' đ' : 'Thỏa thuận'}">Giá</h6>
+                        <p class="card-text small text-muted mb-1" th:text="${(listing.itemCondition != null ? listing.itemCondition : 'Chưa cập nhật tình trạng')}">Tình trạng</p>
+                    </div>
+                    <div class="card-footer bg-transparent border-top-0 pb-3">
+                        <a th:href="@{/listings/{id}(id=${listing.id})}" class="btn btn-outline-primary w-100">Xem chi tiết</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div th:if="${recentListings == null or #lists.isEmpty(recentListings)}">
+            <p class="text-muted">Chưa có tin đăng nào.</p>
+        </div>
+    </section>
 
 </main>
 

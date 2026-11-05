@@ -13,17 +13,18 @@
 
     <!-- DANH SÁCH BÀI ĐĂNG CỦA CÁ NHÂN -->
     <div class="row row-cols-1 row-cols-md-3 g-4" th:if="${listings != null}">
-        <div class="col" th:each="listing : ${listings}">
-            <div class="card h-100 shadow-sm border-0">
-                <div class="bg-white d-flex align-items-center justify-content-center border-bottom" style="height: 200px;">
-                    <a th:href="@{|/listings/${listing.id}|}" class="text-decoration-none">Chưa có ảnh</a>
-                </div>
+        <div class="col" th:each="listing : ${listings}" th:with="lx=${@listingDisplay.info(listing.id)}">
+            <div class="card h-100 shadow-sm border-0 overflow-hidden">
+                <a th:href="@{/listings/{id}(id=${listing.id})}" class="bg-white d-flex align-items-center justify-content-center border-bottom text-decoration-none" style="height: 200px;">
+                    <img th:if="${lx != null and lx.primaryImage != null}" th:src="@{${lx.primaryImage}}" class="w-100 h-100" style="object-fit: cover;" alt="Ảnh tin đăng">
+                    <span th:unless="${lx != null and lx.primaryImage != null}" class="text-muted small">Chưa có ảnh</span>
+                </a>
                 <div class="card-body">
                     <h5 class="card-title text-truncate mb-1" th:text="${listing.title != null ? listing.title : 'Chưa có tiêu đề'}">Tiêu đề</h5>
                     <h6 class="card-subtitle mb-2 text-danger fw-bold" th:text="${listing.price != null ? #numbers.formatInteger(listing.price, 1, 'COMMA') + ' đ' : 'Thỏa thuận'}">Giá</h6>
                     <p class="card-text small text-muted mb-3" th:text="${(listing.itemCondition != null ? listing.itemCondition : 'Chưa cập nhật tình trạng') + ' · ' + (listing.location != null ? listing.location : 'Chưa có địa điểm')}">Tình trạng · Địa điểm</p>
                 </div>
-                <!-- Nút thao tác riêng cho chủ bài đăng -->
+                <!-- Nút thao tác -->
                 <div class="card-footer bg-white border-top-0 d-flex gap-2 pb-3">
                     <a th:href="@{|/listings/edit/${listing.id}|}" class="btn btn-sm btn-outline-primary flex-grow-1">Sửa</a>
                     <a th:href="@{|/listings/delete/${listing.id}|}" class="btn btn-sm btn-outline-danger flex-grow-1" onclick="return confirm('Bạn có chắc chắn muốn xóa tin này không?')">Xóa</a>
@@ -32,7 +33,7 @@
         </div>
     </div>
 
-    <!-- Hiển thị khi chưa có bài đăng nào -->
+    <!-- Hiển thị khi chưa có bài đăng -->
     <div th:if="${listings == null or (listings.class.name.contains('Page') ? listings.totalElements == 0 : listings.size() == 0)}">
         <div class="text-center mt-5">
             <p class="text-muted mb-3">Bạn chưa đăng tin rao bán nào.</p>

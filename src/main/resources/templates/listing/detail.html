@@ -55,6 +55,13 @@
             <div class="fs-4 fw-bold text-danger mb-3"
                  th:text="|${#numbers.formatDecimal(listing.price, 0, 'POINT', 0, 'COMMA')} đ|">50.000 đ</div>
 
+            <!-- THÊM MỚI: Nút Yêu thích -->
+            <form th:action="@{/favorites/add/{id}(id=${listing.id})}" method="post" class="mb-3">
+                <button type="submit" class="btn btn-outline-danger">
+                    &#10084; Thêm vào yêu thích
+                </button>
+            </form>
+
             <table class="table table-sm mb-3">
                 <tbody>
                 <tr><th class="text-muted fw-normal" style="width:35%">Tình trạng</th>
@@ -70,7 +77,6 @@
                 </tbody>
             </table>
 
-            <!-- Thẻ người bán + nút đánh giá (phần của Người 1) -->
             <th:block th:if="${x != null}">
                 <div th:replace="~{review/fragments :: seller-card(${x.sellerId}, ${listing.id})}"></div>
             </th:block>

@@ -35,11 +35,9 @@ public class ListingController {
     @Autowired
     private CategoryRepository categoryRepository;
 
-    // BỔ SUNG: Gọi Repository của bảng ảnh
     @Autowired
     private ListingImageRepository listingImageRepository;
 
-    // 1. Xử lý bộ lọc tìm kiếm ở trang danh sách
     @GetMapping
     public String listListings(
             @RequestParam(required = false) String keyword,
@@ -62,45 +60,36 @@ public class ListingController {
         return "listing/list";
     }
 
-    // 2. Hiển thị trang Đăng tin
     @GetMapping("/create")
     public String showCreateForm(Model model) {
         model.addAttribute("categories", categoryRepository.findAll());
         return "listing/create";
     }
 
-    // 3. ĐÃ SỬA: Xử lý lưu tin đăng mới và upload ảnh
     @PostMapping("/create")
     public String saveListing(Listing listing, @RequestParam(value = "imageFiles", required = false) MultipartFile[] imageFiles) {
 
-        // Gán tạm user có ID = 1 để tránh lỗi bắt buộc khóa ngoại seller_id
         User seller = new User();
         seller.setId(1L);
         listing.setSeller(seller);
         listing.setStatus(ListingStatus.PENDING);
 
-        // Lưu listing trước để hệ thống sinh ra ID bài đăng
         Listing savedListing = listingRepository.save(listing);
 
-        // Logic xử lý lưu ảnh vật lý vào thư mục 'uploads' và ghi vào database
         if (imageFiles != null && imageFiles.length > 0) {
             String uploadDir = "uploads/";
             try {
                 Path uploadPath = Paths.get(uploadDir);
                 if (!Files.exists(uploadPath)) {
-                    Files.createDirectories(uploadPath); // Tạo thư mục nếu chưa có
+                    Files.createDirectories(uploadPath);
                 }
 
                 for (MultipartFile file : imageFiles) {
                     if (!file.isEmpty()) {
-                        // Đổi tên file ngẫu nhiên để tránh trùng lặp
                         String fileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
                         Path filePath = uploadPath.resolve(fileName);
-
-                        // Copy file ảnh vào thư mục
                         Files.copy(file.getInputStream(), filePath);
 
-                        // Lưu thông tin đường dẫn ảnh vào database bảng listing_images
                         ListingImage listingImage = new ListingImage();
                         listingImage.setListing(savedListing);
                         listingImage.setImageUrl("/uploads/" + fileName);
@@ -111,21 +100,27 @@ public class ListingController {
                 e.printStackTrace();
             }
         }
-
         return "redirect:/";
     }
 
-    // 4. Xử lý trang "Tin của tôi"
+    // ĐÃ SỬA: Lọc riêng bài của user ID 1
     @GetMapping("/my-listings")
     public String myListings(Model model) {
         Pageable pageable = PageRequest.of(0, 20);
-        Page<Listing> listings = listingRepository.search(null, null, null, null, pageable);
+        Long currentUserId = 1L; // Gán cứng ID user đăng nhập hiện tại
 
+        Page<Listing> listings = listingRepository.findBySellerId(currentUserId, pageable);
         model.addAttribute("listings", listings);
         return "listing/my-listings";
     }
 
-    // 5. Xử lý xem chi tiết tin đăng
+    // THÊM MỚI: Tính năng xóa
+    @GetMapping("/delete/{id}")
+    public String deleteListing(@PathVariable("id") Long id) {
+        listingRepository.deleteById(id);
+        return "redirect:/listings/my-listings";
+    }
+
     @GetMapping("/{id}")
     public String viewListingDetail(@PathVariable("id") Long id, Model model) {
         Listing listing = listingRepository.findById(id).orElse(null);
@@ -133,7 +128,6 @@ public class ListingController {
         if (listing == null) {
             return "redirect:/listings";
         }
-
         model.addAttribute("listing", listing);
 
         Long catId = (listing.getCategory() != null) ? listing.getCategory().getId() : null;

@@ -17,6 +17,7 @@ public interface ListingRepository extends JpaRepository<Listing, Long> {
 
     Page<Listing> findByStatus(ListingStatus status, Pageable pageable);
 
+    // Đã có sẵn hàm này để phục vụ trang "Tin của tôi"
     Page<Listing> findBySellerId(Long sellerId, Pageable pageable);
 
     // Dùng LEFT JOIN để giữ bài đăng bị lỗi danh mục, và xử lý categoryId = 0 an toàn
