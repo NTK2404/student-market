@@ -3,10 +3,27 @@
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <body>
 
-<!--
-  Thẻ thông tin người bán. Gắn vào trang chi tiết tin:
-  <div th:replace="~{review/fragments :: seller-card(${listing.seller.id}, ${listing.id})}"></div>
--->
+<!-- THÊM MỚI: Fragment thanh menu điều hướng cho trang Hồ sơ cá nhân và Đổi mật khẩu -->
+<div th:fragment="menu(activeItem)">
+    <div class="list-group shadow-sm">
+        <a th:href="@{/profile}" class="list-group-item list-group-item-action"
+           th:classappend="${activeItem == 'info'} ? 'active' : ''">
+            Thông tin cá nhân
+        </a>
+        <a th:href="@{/profile/password}" class="list-group-item list-group-item-action"
+           th:classappend="${activeItem == 'password'} ? 'active' : ''">
+            Đổi mật khẩu
+        </a>
+        <!-- Nút Đăng xuất đồng bộ giao diện form -->
+        <div class="list-group-item">
+            <form th:action="@{/logout}" method="post" class="m-0 w-100">
+                <button type="submit" class="btn btn-link text-danger text-decoration-none p-0 w-100 text-start">Đăng xuất</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Fragment thông tin người bán cũ giữ nguyên -->
 <div th:fragment="seller-card(sellerId, listingId)">
     <div th:with="s=${@reviewService.sellerCard(sellerId)}">
         <div class="card shadow-sm" th:if="${s != null}">
