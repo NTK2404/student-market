@@ -19,11 +19,13 @@ public interface ListingRepository extends JpaRepository<Listing, Long> {
 
     Page<Listing> findBySellerId(Long sellerId, Pageable pageable);
 
+    // Dùng LEFT JOIN để giữ bài đăng bị lỗi danh mục, và xử lý categoryId = 0 an toàn
     @Query("""
         SELECT l FROM Listing l 
+        LEFT JOIN l.category c
         WHERE l.status = com.example.studentmarket.enums.ListingStatus.APPROVED 
-        AND (:keyword IS NULL OR LOWER(l.title) LIKE LOWER(CONCAT('%', :keyword, '%'))) 
-        AND (:categoryId IS NULL OR l.category.id = :categoryId) 
+        AND (:keyword IS NULL OR :keyword = '' OR LOWER(l.title) LIKE LOWER(CONCAT('%', :keyword, '%'))) 
+        AND (:categoryId IS NULL OR :categoryId = 0 OR c.id = :categoryId) 
         AND (:minPrice IS NULL OR l.price >= :minPrice) 
         AND (:maxPrice IS NULL OR l.price <= :maxPrice)
     """)

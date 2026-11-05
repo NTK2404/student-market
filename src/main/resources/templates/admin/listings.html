@@ -31,17 +31,37 @@
                         <td th:text="${listing.title}">Laptop cũ</td>
                         <td th:text="${listing.price}">5,000,000</td>
                         <td>
-                            <!-- Đã đồng bộ logic APPROVED -->
-                            <span class="badge" th:classappend="${listing.status.name() == 'APPROVED'} ? 'bg-success' : 'bg-danger'" th:text="${listing.status}">APPROVED</span>
+                            <span class="badge"
+                                  th:classappend="${listing.status.name() == 'APPROVED' ? 'bg-success' : (listing.status.name() == 'PENDING' ? 'bg-warning text-dark' : 'bg-danger')}"
+                                  th:text="${listing.status.name()}">APPROVED</span>
                         </td>
                         <td>
-                            <!-- Đã đồng bộ logic APPROVED -->
-                            <form th:if="${listing.status.name() == 'APPROVED'}" th:action="@{/admin/listings/hide/{id}(id=${listing.id})}" method="post" class="d-inline">
-                                <button type="submit" class="btn btn-sm btn-outline-danger">Ẩn bài</button>
-                            </form>
-                            <form th:if="${listing.status.name() == 'HIDDEN'}" th:action="@{/admin/listings/show/{id}(id=${listing.id})}" method="post" class="d-inline">
-                                <button type="submit" class="btn btn-sm btn-outline-success">Hiện bài</button>
-                            </form>
+                            <div class="d-inline-flex gap-2">
+                                <!-- Nút Ẩn bài cho bài đã duyệt -->
+                                <form th:if="${listing.status.name() == 'APPROVED'}" th:action="@{|/admin/listings/hide/${listing.id}|}" method="post" class="m-0">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">Ẩn bài</button>
+                                </form>
+
+                                <!-- Nút Hiện bài cho bài bị ẩn -->
+                                <form th:if="${listing.status.name() == 'HIDDEN'}" th:action="@{|/admin/listings/show/${listing.id}|}" method="post" class="m-0">
+                                    <button type="submit" class="btn btn-sm btn-outline-success">Hiện bài</button>
+                                </form>
+
+                                <!-- Nút Duyệt / Từ chối cho bài chờ duyệt -->
+                                <th:block th:if="${listing.status.name() == 'PENDING'}">
+                                    <form th:action="@{|/admin/listings/approve/${listing.id}|}" method="post" class="m-0">
+                                        <button type="submit" class="btn btn-sm btn-success">Duyệt</button>
+                                    </form>
+                                    <form th:action="@{|/admin/listings/reject/${listing.id}|}" method="post" class="m-0">
+                                        <button type="submit" class="btn btn-sm btn-danger">Từ chối</button>
+                                    </form>
+                                </th:block>
+
+                                <!-- Nút Xóa vĩnh viễn (Luôn hiển thị cho mọi trạng thái) -->
+                                <form th:action="@{|/admin/listings/delete/${listing.id}|}" method="post" class="m-0" onsubmit="return confirm('Bạn có chắc chắn muốn xóa vĩnh viễn bài đăng này? Hành động này không thể hoàn tác.');">
+                                    <button type="submit" class="btn btn-sm btn-dark">Xóa</button>
+                                </form>
+                            </div>
                         </td>
                     </tr>
                     <tr th:if="${#lists.isEmpty(listings)}">

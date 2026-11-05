@@ -54,7 +54,7 @@ public class AdminController {
         return "redirect:/admin/users";
     }
 
-    // Mở khóa tài khoản (Route vừa được bổ sung)
+    // Mở khóa tài khoản
     @PostMapping("/users/unlock/{id}")
     public String unlockUser(@PathVariable Long id) {
         User user = userRepository.findById(id).orElse(null);
@@ -73,7 +73,7 @@ public class AdminController {
         return "admin/listings";
     }
 
-    // Ẩn bài đăng (Route vừa được bổ sung)
+    // Ẩn bài đăng
     @PostMapping("/listings/hide/{id}")
     public String hideListing(@PathVariable Long id) {
         Listing listing = listingRepository.findById(id).orElse(null);
@@ -84,13 +84,44 @@ public class AdminController {
         return "redirect:/admin/listings";
     }
 
-    // Hiện bài đăng (Route vừa được bổ sung)
+    // Hiện bài đăng
     @PostMapping("/listings/show/{id}")
     public String showListing(@PathVariable Long id) {
         Listing listing = listingRepository.findById(id).orElse(null);
         if (listing != null) {
             listing.setStatus(ListingStatus.APPROVED);
             listingRepository.save(listing);
+        }
+        return "redirect:/admin/listings";
+    }
+
+    // Duyệt bài đăng
+    @PostMapping("/listings/approve/{id}")
+    public String approveListing(@PathVariable Long id) {
+        Listing listing = listingRepository.findById(id).orElse(null);
+        if (listing != null) {
+            listing.setStatus(ListingStatus.APPROVED);
+            listingRepository.save(listing);
+        }
+        return "redirect:/admin/listings";
+    }
+
+    // Từ chối bài đăng
+    @PostMapping("/listings/reject/{id}")
+    public String rejectListing(@PathVariable Long id) {
+        Listing listing = listingRepository.findById(id).orElse(null);
+        if (listing != null) {
+            listing.setStatus(ListingStatus.REJECTED);
+            listingRepository.save(listing);
+        }
+        return "redirect:/admin/listings";
+    }
+
+    // Xóa vĩnh viễn bài đăng
+    @PostMapping("/listings/delete/{id}")
+    public String deleteListing(@PathVariable Long id) {
+        if (listingRepository.existsById(id)) {
+            listingRepository.deleteById(id);
         }
         return "redirect:/admin/listings";
     }
@@ -103,7 +134,7 @@ public class AdminController {
         return "admin/reports";
     }
 
-    // Đánh dấu báo cáo đã xử lý (Route vừa được bổ sung)
+    // Đánh dấu báo cáo đã xử lý
     @PostMapping("/reports/resolve/{id}")
     public String resolveReport(@PathVariable Long id) {
         Report report = reportRepository.findById(id).orElse(null);

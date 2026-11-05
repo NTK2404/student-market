@@ -15,8 +15,14 @@
     <section>
         <h2 class="h5 mb-3">Danh mục</h2>
         <div class="d-flex flex-wrap gap-2">
+
+            <!-- ĐÃ THÊM: Nút "Tất cả" hiển thị đầu tiên bên trái, gửi giá trị rỗng để tránh lỗi kiểu dữ liệu -->
+            <a class="btn btn-outline-primary btn-sm" th:href="@{/listings}">Tất cả</a>
+
+            <!-- Các danh mục khác tự động lấy từ Database -->
             <a class="btn btn-outline-primary btn-sm" th:each="c : ${categories}"
                th:href="@{/listings(categoryId=${c.id})}" th:text="${c.name}">Danh mục</a>
+
         </div>
     </section>
 

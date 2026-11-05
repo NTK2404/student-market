@@ -1,99 +1,91 @@
 <!DOCTYPE html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{layout/layout :: head('Tin đăng')}"></head>
-<body class="d-flex flex-column min-vh-100">
+<body class="d-flex flex-column min-vh-100 bg-light">
 
 <div th:replace="~{layout/layout :: header}"></div>
 
 <main class="container flex-grow-1 py-4">
+    <h2 class="mb-4">Tin đăng</h2>
 
-    <div th:replace="~{layout/layout :: flash}"></div>
+    <!-- BỘ LỌC TÌM KIẾM -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <form th:action="@{/listings}" method="get" class="row g-3 align-items-end">
 
-    <h1 class="h4 mb-3">Tin đăng</h1>
+                <div class="col-md-4">
+                    <label class="form-label text-muted small mb-1">Từ khóa</label>
+                    <input type="text" name="keyword" class="form-control" th:value="${keyword}" placeholder="Giáo trình, laptop, xe đạp...">
+                </div>
 
-    <!-- Tìm kiếm và lọc -->
-    <form class="card card-body shadow-sm mb-4" th:action="@{/listings}" method="get">
-        <div class="row g-2 align-items-end">
-            <div class="col-md-4">
-                <label class="form-label small mb-1" for="keyword">Từ khóa</label>
-                <input type="text" class="form-control" id="keyword" name="keyword" th:value="${keyword}"
-                       placeholder="Giáo trình, laptop, xe đạp...">
-            </div>
-            <div class="col-md-3">
-                <label class="form-label small mb-1" for="categoryId">Danh mục</label>
-                <select class="form-select" id="categoryId" name="categoryId">
-                    <option value="">Tất cả</option>
-                    <option th:each="c : ${categories}" th:value="${c.id}" th:text="${c.name}"
-                            th:selected="${categoryId != null and categoryId == c.id}">Danh mục</option>
-                </select>
-            </div>
-            <div class="col-md-2">
-                <label class="form-label small mb-1" for="minPrice">Giá từ</label>
-                <input type="number" min="0" class="form-control" id="minPrice" name="minPrice" th:value="${minPrice}">
-            </div>
-            <div class="col-md-2">
-                <label class="form-label small mb-1" for="maxPrice">Đến</label>
-                <input type="number" min="0" class="form-control" id="maxPrice" name="maxPrice" th:value="${maxPrice}">
-            </div>
-            <div class="col-md-1 d-grid">
-                <button type="submit" class="btn btn-primary">Lọc</button>
-            </div>
+                <div class="col-md-3">
+                    <label class="form-label text-muted small mb-1">Danh mục</label>
+
+                    <!-- ĐÃ SỬA: Thêm onchange="this.form.submit()" để tự động lọc khi vừa chọn danh mục -->
+                    <select name="categoryId" class="form-select" onchange="this.form.submit()">
+                        <option value="" th:selected="${categoryId == null}">Tất cả</option>
+
+                        <option th:each="c : ${categories}"
+                                th:value="${c.id}"
+                                th:text="${c.name}"
+                                th:selected="${categoryId != null and categoryId.toString() == c.id.toString()}">
+                            Danh mục
+                        </option>
+                    </select>
+                </div>
+
+                <div class="col-md-2">
+                    <label class="form-label text-muted small mb-1">Giá từ</label>
+                    <input type="number" name="minPrice" class="form-control" th:value="${minPrice}">
+                </div>
+
+                <div class="col-md-2">
+                    <label class="form-label text-muted small mb-1">Đến</label>
+                    <input type="number" name="maxPrice" class="form-control" th:value="${maxPrice}">
+                </div>
+
+                <div class="col-md-1">
+                    <button type="submit" class="btn btn-primary w-100">Lọc</button>
+                </div>
+            </form>
         </div>
-    </form>
-
-    <p class="text-muted small" th:text="|${listingPage.totalElements} tin đăng|">0 tin đăng</p>
-
-    <div class="alert alert-light border" th:if="${listingPage.empty}">
-        Không tìm thấy tin đăng nào phù hợp.
     </div>
 
-    <!-- Danh sách thẻ -->
-    <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-3">
-        <div class="col" th:each="l : ${listingPage.content}" th:with="x=${@listingDisplay.info(l.id)}">
-            <div class="card h-100 shadow-sm">
-                <a th:href="@{/listings/{id}(id=${l.id})}">
-                    <img th:if="${x != null and x.primaryImage != null}" th:src="@{${x.primaryImage}}"
-                         class="card-img-top" style="height:180px;object-fit:cover" alt="Ảnh tin đăng">
-                    <div th:unless="${x != null and x.primaryImage != null}"
-                         class="bg-light d-flex align-items-center justify-content-center text-muted"
-                         style="height:180px">Chưa có ảnh</div>
-                </a>
+    <!-- Tự động đếm số lượng bài đăng -->
+    <p class="text-muted mb-3" th:if="${listings != null}">
+        <span th:text="${listings.class.name.contains('Page') ? listings.totalElements : listings.size()}"></span> tin đăng
+    </p>
+
+    <!-- DANH SÁCH BÀI ĐĂNG -->
+    <div class="row row-cols-1 row-cols-md-3 g-4" th:if="${listings != null}">
+
+        <div class="col" th:each="listing : ${listings}">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="bg-white d-flex align-items-center justify-content-center border-bottom" style="height: 200px;">
+                    <a th:href="@{|/listings/${listing.id}|}" class="text-decoration-none">Chưa có ảnh</a>
+                </div>
                 <div class="card-body">
-                    <h2 class="h6 mb-1">
-                        <a class="text-decoration-none text-dark" th:href="@{/listings/{id}(id=${l.id})}"
-                           th:text="${l.title}">Tiêu đề</a>
-                    </h2>
-                    <div class="text-danger fw-bold"
-                         th:text="|${#numbers.formatDecimal(l.price, 0, 'POINT', 0, 'COMMA')} đ|">50.000 đ</div>
-                    <div class="small text-muted">
-                        <span th:text="${@listingDisplay.conditionLabel(l.itemCondition)}">Đã sử dụng</span>
-                        <span th:if="${l.location != null}" th:text="|· ${l.location}|">· KTX</span>
-                    </div>
-                    <div class="small text-muted" th:if="${x != null}"
-                         th:text="|${x.categoryName} · ${x.sellerName}|">Danh mục · Người bán</div>
+                    <h5 class="card-title text-truncate mb-1" th:text="${listing.title != null ? listing.title : 'Chưa có tiêu đề'}">Tiêu đề</h5>
+
+                    <h6 class="card-subtitle mb-2 text-danger fw-bold" th:text="${listing.price != null ? #numbers.formatInteger(listing.price, 1, 'COMMA') + ' đ' : 'Thỏa thuận'}">Giá</h6>
+
+                    <p class="card-text small text-muted mb-1" th:text="${(listing.itemCondition != null ? listing.itemCondition : 'Chưa cập nhật tình trạng') + ' · ' + (listing.location != null ? listing.location : 'Chưa có địa điểm')}">Tình trạng · Địa điểm</p>
+
+                    <p class="card-text small text-muted" th:if="${listing.category != null}" th:text="${listing.category.name + ' · Người bán'}">Danh mục · Người bán</p>
+                </div>
+
+                <!-- BỔ SUNG: Phần nút Xem chi tiết ở chân thẻ sản phẩm -->
+                <div class="card-footer bg-transparent border-top-0 pb-3">
+                    <a th:href="@{/listings/{id}(id=${listing.id})}" class="btn btn-outline-primary w-100">Xem chi tiết</a>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Phân trang (giữ nguyên bộ lọc) -->
-    <nav class="mt-4" th:if="${listingPage.totalPages > 1}">
-        <ul class="pagination justify-content-center">
-            <li class="page-item" th:classappend="${listingPage.first} ? 'disabled'">
-                <a class="page-link"
-                   th:href="@{/listings(keyword=${keyword},categoryId=${categoryId},minPrice=${minPrice},maxPrice=${maxPrice},page=${listingPage.number - 1})}">«</a>
-            </li>
-            <li class="page-item" th:each="n : ${#numbers.sequence(0, listingPage.totalPages - 1)}"
-                th:classappend="${n == listingPage.number} ? 'active'">
-                <a class="page-link" th:text="${n + 1}"
-                   th:href="@{/listings(keyword=${keyword},categoryId=${categoryId},minPrice=${minPrice},maxPrice=${maxPrice},page=${n})}">1</a>
-            </li>
-            <li class="page-item" th:classappend="${listingPage.last} ? 'disabled'">
-                <a class="page-link"
-                   th:href="@{/listings(keyword=${keyword},categoryId=${categoryId},minPrice=${minPrice},maxPrice=${maxPrice},page=${listingPage.number + 1})}">»</a>
-            </li>
-        </ul>
-    </nav>
+    <!-- Cảnh báo khi không tìm thấy kết quả -->
+    <div th:if="${listings == null or (listings.class.name.contains('Page') ? listings.totalElements == 0 : listings.size() == 0)}">
+        <p class="text-center text-muted mt-5">Không có tin đăng nào phù hợp.</p>
+    </div>
 
 </main>
 
