@@ -23,15 +23,18 @@
                     <form th:action="@{/profile}" th:object="${profileForm}" method="post"
                           enctype="multipart/form-data" novalidate>
 
-                        <!-- ĐÃ FIX TRIỆT ĐỂ: Tách riêng logic xử lý chuỗi để Thymeleaf không bị lỗi Parsing Error -->
+                        <!-- ĐÃ FIX: Kiểm tra null an toàn cho toàn bộ currentUser -->
                         <div class="d-flex align-items-center gap-3 mb-4">
-                            <img th:if="${currentUser.avatarUrl != null}" th:src="@{${currentUser.avatarUrl}}"
+                            <!-- Hiển thị ảnh đại diện nếu có -->
+                            <img th:if="${currentUser != null and currentUser.avatarUrl != null}"
+                                 th:src="@{${currentUser.avatarUrl}}"
                                  class="avatar" alt="Ảnh đại diện">
 
-                            <div th:unless="${currentUser.avatarUrl != null}" class="avatar avatar-placeholder">
-                                <span th:if="${!#strings.isEmpty(currentUser.fullName)}"
+                            <!-- Hiển thị chữ cái đầu hoặc U nếu không có ảnh -->
+                            <div th:unless="${currentUser != null and currentUser.avatarUrl != null}" class="avatar avatar-placeholder">
+                                <span th:if="${currentUser != null and currentUser.fullName != null and !currentUser.fullName.isEmpty()}"
                                       th:text="${#strings.toUpperCase(#strings.substring(currentUser.fullName, 0, 1))}">A</span>
-                                <span th:unless="${!#strings.isEmpty(currentUser.fullName)}">U</span>
+                                <span th:unless="${currentUser != null and currentUser.fullName != null and !currentUser.fullName.isEmpty()}">U</span>
                             </div>
 
                             <div class="flex-grow-1">
@@ -46,7 +49,8 @@
 
                         <div class="mb-3">
                             <label class="form-label">Email</label>
-                            <input type="email" class="form-control" th:value="${currentUser.email}" disabled>
+                            <!-- ĐÃ FIX: Bọc an toàn biến email -->
+                            <input type="email" class="form-control" th:value="${currentUser != null ? currentUser.email : ''}" disabled>
                             <div class="form-text">Email dùng để đăng nhập, không thể thay đổi.</div>
                         </div>
 
