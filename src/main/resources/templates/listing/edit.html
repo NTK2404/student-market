@@ -7,57 +7,80 @@
 </head>
 <body>
 
-    <!-- Header chung -->
-    <div th:replace="~{layout/layout :: header}"></div>
+<!-- Header chung -->
+<div th:replace="~{layout/layout :: header}"></div>
 
-    <div class="container my-5">
-        <div class="row justify-content-center">
-            <div class="col-md-8">
-                <div class="card shadow-sm p-4">
-                    <h2 class="fw-bold mb-4 text-primary">Chỉnh sửa tin đăng</h2>
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm p-4">
+                <h2 class="fw-bold mb-4 text-primary">Chỉnh sửa tin đăng</h2>
 
-                    <!-- Form sửa tin -->
-                    <form th:action="@{/listings/{id}/edit(id=${listingId})}" th:object="${listingForm}" method="post">
-                        
-                        <!-- Tiêu đề -->
-                        <div class="mb-3">
-                            <label for="title" class="form-label fw-bold">Tiêu đề tin đăng</label>
-                            <input type="text" class="form-control" id="title" th:field="*{title}" placeholder="Nhập tiêu đề..." required>
-                        </div>
+                <!-- ĐÃ SỬA: URL và Object cho khớp với Controller -->
+                <form th:action="@{/listings/edit/{id}(id=${listing.id})}" th:object="${listing}" method="post">
 
-                        <!-- Giá -->
-                        <div class="mb-3">
-                            <label for="price" class="form-label fw-bold">Giá (VNĐ)</label>
-                            <input type="number" class="form-control" id="price" th:field="*{price}" placeholder="Nhập giá tiền..." required>
-                        </div>
+                    <!-- Tiêu đề -->
+                    <div class="mb-3">
+                        <label for="title" class="form-label fw-bold">Tiêu đề tin đăng</label>
+                        <input type="text" class="form-control" id="title" th:field="*{title}" placeholder="Nhập tiêu đề..." required>
+                    </div>
 
-                        <!-- Địa điểm -->
-                        <div class="mb-3">
-                            <label for="location" class="form-label fw-bold">Khu vực / Địa điểm</label>
-                            <input type="text" class="form-control" id="location" th:field="*{location}" placeholder="Ví dụ: Ký túc xá FPT, Cầu Giấy...">
-                        </div>
+                    <!-- Giá -->
+                    <div class="mb-3">
+                        <label for="price" class="form-label fw-bold">Giá (VNĐ)</label>
+                        <input type="number" class="form-control" id="price" th:field="*{price}" placeholder="Nhập giá tiền..." required>
+                    </div>
 
-                        <!-- Mô tả chi tiết -->
-                        <div class="mb-3">
-                            <label for="description" class="form-label fw-bold">Mô tả chi tiết</label>
-                            <textarea class="form-control" id="description" th:field="*{description}" rows="5" placeholder="Mô tả tình trạng sản phẩm..."></textarea>
-                        </div>
+                    <!-- THÊM MỚI: Danh mục -->
+                    <div class="mb-3">
+                        <label for="category" class="form-label fw-bold">Danh mục</label>
+                        <select class="form-select" id="category" th:field="*{category.id}" required>
+                            <option value="" disabled>-- Chọn danh mục --</option>
+                            <option th:each="cat : ${categories}" th:value="${cat.id}" th:text="${cat.name}">Danh mục</option>
+                        </select>
+                    </div>
 
-                        <!-- Nút thao tác -->
-                        <div class="d-flex justify-content-between">
-                            <a th:href="@{/listings/my-listings}" class="btn btn-secondary">Quay lại</a>
-                            <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
-                        </div>
+                    <!-- THÊM MỚI: Tình trạng -->
+                    <div class="mb-3">
+                        <label for="itemCondition" class="form-label fw-bold">Tình trạng</label>
+                        <select class="form-select" id="itemCondition" th:field="*{itemCondition}" required>
+                            <option value="" disabled>-- Chọn tình trạng --</option>
+                            <!-- Đảm bảo value khớp với Enum ListingCondition (ví dụ: NEW, LIKE_NEW, GOOD, FAIR, POOR) -->
+                            <option value="NEW">Mới</option>
+                            <option value="LIKE_NEW">Như mới</option>
+                            <option value="GOOD">Tốt</option>
+                            <option value="FAIR">Khá</option>
+                            <option value="POOR">Cũ</option>
+                        </select>
+                    </div>
 
-                    </form>
-                </div>
+                    <!-- Địa điểm -->
+                    <div class="mb-3">
+                        <label for="location" class="form-label fw-bold">Khu vực / Địa điểm</label>
+                        <input type="text" class="form-control" id="location" th:field="*{location}" placeholder="Ví dụ: Ký túc xá FPT, Cầu Giấy...">
+                    </div>
+
+                    <!-- Mô tả chi tiết -->
+                    <div class="mb-3">
+                        <label for="description" class="form-label fw-bold">Mô tả chi tiết</label>
+                        <textarea class="form-control" id="description" th:field="*{description}" rows="5" placeholder="Mô tả tình trạng sản phẩm..."></textarea>
+                    </div>
+
+                    <!-- Nút thao tác -->
+                    <div class="d-flex justify-content-between">
+                        <a th:href="@{/listings/my-listings}" class="btn btn-secondary">Quay lại</a>
+                        <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+                    </div>
+
+                </form>
             </div>
         </div>
     </div>
+</div>
 
-    <!-- Footer chung -->
-    <div th:replace="~{layout/layout :: footer}"></div>
-    <div th:replace="~{layout/layout :: scripts}"></div>
+<!-- Footer chung -->
+<div th:replace="~{layout/layout :: footer}"></div>
+<div th:replace="~{layout/layout :: scripts}"></div>
 
 </body>
 </html>

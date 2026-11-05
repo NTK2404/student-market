@@ -70,7 +70,7 @@ public class ListingController {
     public String saveListing(Listing listing, @RequestParam(value = "imageFiles", required = false) MultipartFile[] imageFiles) {
 
         User seller = new User();
-        seller.setId(1L);
+        seller.setId(1L); // Sửa lại cho phù hợp với login thực tế nếu cần
         listing.setSeller(seller);
         listing.setStatus(ListingStatus.PENDING);
 
@@ -103,21 +103,51 @@ public class ListingController {
         return "redirect:/";
     }
 
-    // ĐÃ SỬA: Lọc riêng bài của user ID 1
     @GetMapping("/my-listings")
     public String myListings(Model model) {
         Pageable pageable = PageRequest.of(0, 20);
-        Long currentUserId = 1L; // Gán cứng ID user đăng nhập hiện tại
+        Long currentUserId = 1L; // Cần đổi thành id lấy từ Authentication nếu đã sửa login
 
         Page<Listing> listings = listingRepository.findBySellerId(currentUserId, pageable);
         model.addAttribute("listings", listings);
         return "listing/my-listings";
     }
 
-    // THÊM MỚI: Tính năng xóa
     @GetMapping("/delete/{id}")
     public String deleteListing(@PathVariable("id") Long id) {
         listingRepository.deleteById(id);
+        return "redirect:/listings/my-listings";
+    }
+
+    // THÊM MỚI: Xử lý hiển thị form sửa bài
+    @GetMapping("/edit/{id}")
+    public String showEditForm(@PathVariable("id") Long id, Model model) {
+        Listing listing = listingRepository.findById(id).orElse(null);
+        if (listing == null) {
+            return "redirect:/listings/my-listings";
+        }
+        model.addAttribute("listing", listing);
+        model.addAttribute("categories", categoryRepository.findAll());
+        return "listing/edit"; // LƯU Ý: Phải đảm bảo cậu đã có file giao diện templates/listing/edit.html
+    }
+
+    // THÊM MỚI: Xử lý lưu thông tin cập nhật
+    @PostMapping("/edit/{id}")
+    public String updateListing(@PathVariable("id") Long id, Listing updatedListing) {
+        Listing existingListing = listingRepository.findById(id).orElse(null);
+        if (existingListing != null) {
+            existingListing.setTitle(updatedListing.getTitle());
+            existingListing.setPrice(updatedListing.getPrice());
+            existingListing.setItemCondition(updatedListing.getItemCondition());
+            existingListing.setLocation(updatedListing.getLocation());
+            existingListing.setCategory(updatedListing.getCategory());
+            existingListing.setDescription(updatedListing.getDescription());
+
+            // Trạng thái thường tự động về PENDING khi sửa để admin duyệt lại
+            existingListing.setStatus(ListingStatus.PENDING);
+
+            listingRepository.save(existingListing);
+        }
         return "redirect:/listings/my-listings";
     }
 

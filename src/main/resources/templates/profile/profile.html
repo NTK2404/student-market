@@ -23,12 +23,12 @@
                     <form th:action="@{/profile}" th:object="${profileForm}" method="post"
                           enctype="multipart/form-data" novalidate>
 
-                        <!-- Ảnh đại diện -->
+                        <!-- ĐÃ SỬA: Bảo vệ hàm substring khỏi lỗi NullPointerException -->
                         <div class="d-flex align-items-center gap-3 mb-4">
                             <img th:if="${currentUser.avatarUrl != null}" th:src="@{${currentUser.avatarUrl}}"
                                  class="avatar" alt="Ảnh đại diện">
                             <div th:unless="${currentUser.avatarUrl != null}" class="avatar avatar-placeholder"
-                                 th:text="${#strings.toUpperCase(#strings.substring(currentUser.fullName, 0, 1))}">A</div>
+                                 th:text="${#strings.toUpperCase(#strings.substring((currentUser.fullName ?: 'U'), 0, 1))}">A</div>
                             <div class="flex-grow-1">
                                 <label for="avatar" class="form-label">Ảnh đại diện</label>
                                 <input type="file" class="form-control" id="avatar" name="avatar"
