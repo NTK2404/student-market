@@ -5,7 +5,6 @@ import com.example.studentmarket.dto.auth.ProfileForm;
 import com.example.studentmarket.entity.User;
 import com.example.studentmarket.service.auth.ProfileService;
 import jakarta.validation.Valid;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -18,11 +17,13 @@ import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-/** Hồ sơ cá nhân và đổi mật khẩu của người đang đăng nhập. */
 @Controller
 public class ProfileController {
 
     private final ProfileService profileService;
+
+    // GÁN CỨNG: Email mặc định thay cho Authentication để chạy demo
+    private final String DEMO_EMAIL = "admin@market.local";
 
     public ProfileController(ProfileService profileService) {
         this.profileService = profileService;
@@ -30,9 +31,14 @@ public class ProfileController {
 
     // ---------- Hồ sơ ----------
 
+    // ĐÃ SỬA: Loại bỏ biến Authentication auth khỏi tham số hàm
     @GetMapping("/profile")
-    public String profile(Authentication auth, Model model) {
-        User u = profileService.getByEmail(auth.getName());
+    public String profile(Model model) {
+        User u = profileService.getByEmail(DEMO_EMAIL);
+
+        // Truyền currentUser xuống View để profile.html đọc được biến
+        model.addAttribute("currentUser", u);
+
         ProfileForm form = new ProfileForm();
         form.setFullName(u.getFullName());
         form.setPhone(u.getPhone());
@@ -41,9 +47,9 @@ public class ProfileController {
         return "profile/profile";
     }
 
+    // ĐÃ SỬA: Loại bỏ Authentication auth và dùng DEMO_EMAIL
     @PostMapping("/profile")
-    public String updateProfile(Authentication auth,
-                                @Valid @ModelAttribute("profileForm") ProfileForm form,
+    public String updateProfile(@Valid @ModelAttribute("profileForm") ProfileForm form,
                                 BindingResult result,
                                 @RequestParam(value = "avatar", required = false) MultipartFile avatar,
                                 Model model,
@@ -52,8 +58,8 @@ public class ProfileController {
             return "profile/profile";
         }
         try {
-            profileService.updateProfile(auth.getName(), form, avatar);
-        } catch (IllegalArgumentException e) { // ảnh không hợp lệ
+            profileService.updateProfile(DEMO_EMAIL, form, avatar);
+        } catch (IllegalArgumentException e) {
             model.addAttribute("avatarError", e.getMessage());
             return "profile/profile";
         }
@@ -61,7 +67,6 @@ public class ProfileController {
         return "redirect:/profile";
     }
 
-    // Ảnh vượt quá giới hạn multipart trong application.properties
     @ExceptionHandler(MaxUploadSizeExceededException.class)
     public String tooBig() {
         return "redirect:/profile?tooBig";
@@ -76,15 +81,14 @@ public class ProfileController {
     }
 
     @PostMapping("/profile/password")
-    public String changePassword(Authentication auth,
-                                 @Valid @ModelAttribute("changePasswordForm") ChangePasswordForm form,
+    public String changePassword(@Valid @ModelAttribute("changePasswordForm") ChangePasswordForm form,
                                  BindingResult result,
                                  RedirectAttributes redirect) {
         if (form.getNewPassword() != null && !form.getNewPassword().equals(form.getConfirmPassword())) {
             result.rejectValue("confirmPassword", "mismatch", "Mật khẩu nhập lại không khớp");
         }
         if (!result.hasFieldErrors("currentPassword")
-                && !profileService.passwordMatches(auth.getName(), form.getCurrentPassword())) {
+                && !profileService.passwordMatches(DEMO_EMAIL, form.getCurrentPassword())) {
             result.rejectValue("currentPassword", "wrong", "Mật khẩu hiện tại không đúng");
         }
         if (!result.hasErrors() && form.getNewPassword().equals(form.getCurrentPassword())) {
@@ -93,7 +97,7 @@ public class ProfileController {
         if (result.hasErrors()) {
             return "profile/password";
         }
-        profileService.changePassword(auth.getName(), form.getNewPassword());
+        profileService.changePassword(DEMO_EMAIL, form.getNewPassword());
         redirect.addFlashAttribute("success", "Đổi mật khẩu thành công.");
         return "redirect:/profile/password";
     }
