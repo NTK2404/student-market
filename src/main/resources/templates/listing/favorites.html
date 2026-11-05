@@ -22,8 +22,12 @@
                     <h5 class="card-title text-truncate mb-1" th:text="${listing.title != null ? listing.title : 'Chưa có tiêu đề'}">Tiêu đề</h5>
                     <h6 class="card-subtitle mb-2 text-danger fw-bold" th:text="${listing.price != null ? #numbers.formatInteger(listing.price, 1, 'COMMA') + ' đ' : 'Thỏa thuận'}">Giá</h6>
                 </div>
-                <div class="card-footer bg-white border-top-0 pb-3">
-                    <a th:href="@{/listings/{id}(id=${listing.id})}" class="btn btn-outline-primary w-100">Xem chi tiết</a>
+                <!-- ĐÃ THÊM: Nút xóa khỏi danh sách yêu thích -->
+                <div class="card-footer bg-white border-top-0 d-flex gap-2 pb-3">
+                    <a th:href="@{/listings/{id}(id=${listing.id})}" class="btn btn-outline-primary flex-grow-1">Xem chi tiết</a>
+                    <form th:action="@{/favorites/remove/{id}(id=${listing.id})}" method="post" class="m-0">
+                        <button type="submit" class="btn btn-outline-danger" title="Xóa khỏi yêu thích">X</button>
+                    </form>
                 </div>
             </div>
         </div>

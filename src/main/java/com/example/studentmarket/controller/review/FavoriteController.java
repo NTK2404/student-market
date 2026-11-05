@@ -19,7 +19,6 @@ public class FavoriteController {
     @Autowired
     private ListingRepository listingRepository;
 
-    // ĐÃ SỬA: Lấy danh sách yêu thích từ Session
     @GetMapping("/favorites")
     public String showFavorites(Model model, HttpSession session) {
         List<Long> favoriteIds = (List<Long>) session.getAttribute("favoriteListings");
@@ -33,7 +32,6 @@ public class FavoriteController {
         return "listing/favorites";
     }
 
-    // ĐÃ SỬA: Thêm ID bài đăng vào Session khi bấm nút Yêu thích
     @PostMapping("/favorites/add/{listingId}")
     public String addFavorite(@PathVariable("listingId") Long listingId, HttpSession session) {
         List<Long> favoriteIds = (List<Long>) session.getAttribute("favoriteListings");
@@ -42,12 +40,24 @@ public class FavoriteController {
             favoriteIds = new ArrayList<>();
         }
 
-        // Tránh lưu trùng lặp một bài đăng nhiều lần
         if (!favoriteIds.contains(listingId)) {
             favoriteIds.add(listingId);
             session.setAttribute("favoriteListings", favoriteIds);
         }
 
         return "redirect:/listings/" + listingId;
+    }
+
+    // THÊM MỚI: Hàm xử lý xóa bài đăng khỏi danh sách yêu thích
+    @PostMapping("/favorites/remove/{listingId}")
+    public String removeFavorite(@PathVariable("listingId") Long listingId, HttpSession session) {
+        List<Long> favoriteIds = (List<Long>) session.getAttribute("favoriteListings");
+
+        if (favoriteIds != null) {
+            favoriteIds.remove(listingId); // Xóa ID khỏi danh sách
+            session.setAttribute("favoriteListings", favoriteIds); // Cập nhật lại Session
+        }
+
+        return "redirect:/favorites";
     }
 }
