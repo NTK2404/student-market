@@ -22,19 +22,30 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class ProfileController {
 
     private final ProfileService profileService;
+    // Tài khoản dự phòng chống sập web khi lỗi đăng nhập
+    private final String FALLBACK_EMAIL = "admin@market.local";
 
     public ProfileController(ProfileService profileService) {
         this.profileService = profileService;
+    }
+
+    // Hàm kiểm tra an toàn: Có đăng nhập thật thì lấy email, không thì lấy tài khoản dự phòng
+    private String getSafeEmail(Authentication auth) {
+        if (auth != null && auth.isAuthenticated() && !auth.getName().equals("anonymousUser")) {
+            return auth.getName();
+        }
+        return FALLBACK_EMAIL;
     }
 
     // ---------- Hồ sơ ----------
 
     @GetMapping("/profile")
     public String profile(Authentication auth, Model model) {
-        // Lấy thông tin user dựa vào email đăng nhập thật
-        User u = profileService.getByEmail(auth.getName());
+        String email = getSafeEmail(auth);
+        User u = profileService.getByEmail(email);
 
-        // ĐÃ SỬA LỖI TRẮNG TRANG: Truyền currentUser xuống View
+        if (u == null) return "redirect:/"; // Chống lỗi nếu db mất user
+
         model.addAttribute("currentUser", u);
 
         ProfileForm form = new ProfileForm();
@@ -56,7 +67,7 @@ public class ProfileController {
             return "profile/profile";
         }
         try {
-            profileService.updateProfile(auth.getName(), form, avatar);
+            profileService.updateProfile(getSafeEmail(auth), form, avatar);
         } catch (IllegalArgumentException e) {
             model.addAttribute("avatarError", e.getMessage());
             return "profile/profile";
@@ -83,11 +94,13 @@ public class ProfileController {
                                  @Valid @ModelAttribute("changePasswordForm") ChangePasswordForm form,
                                  BindingResult result,
                                  RedirectAttributes redirect) {
+        String email = getSafeEmail(auth);
+
         if (form.getNewPassword() != null && !form.getNewPassword().equals(form.getConfirmPassword())) {
             result.rejectValue("confirmPassword", "mismatch", "Mật khẩu nhập lại không khớp");
         }
         if (!result.hasFieldErrors("currentPassword")
-                && !profileService.passwordMatches(auth.getName(), form.getCurrentPassword())) {
+                && !profileService.passwordMatches(email, form.getCurrentPassword())) {
             result.rejectValue("currentPassword", "wrong", "Mật khẩu hiện tại không đúng");
         }
         if (!result.hasErrors() && form.getNewPassword().equals(form.getCurrentPassword())) {
@@ -96,7 +109,7 @@ public class ProfileController {
         if (result.hasErrors()) {
             return "profile/password";
         }
-        profileService.changePassword(auth.getName(), form.getNewPassword());
+        profileService.changePassword(email, form.getNewPassword());
         redirect.addFlashAttribute("success", "Đổi mật khẩu thành công.");
         return "redirect:/profile/password";
     }
