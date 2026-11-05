@@ -21,7 +21,7 @@
                 <div class="col-md-3">
                     <label class="form-label text-muted small mb-1">Danh mục</label>
 
-                    <!-- ĐÃ SỬA: Thêm onchange="this.form.submit()" để tự động lọc khi vừa chọn danh mục -->
+                    <!-- Tự động lọc khi vừa chọn danh mục -->
                     <select name="categoryId" class="form-select" onchange="this.form.submit()">
                         <option value="" th:selected="${categoryId == null}">Tất cả</option>
 
@@ -59,11 +59,23 @@
     <!-- DANH SÁCH BÀI ĐĂNG -->
     <div class="row row-cols-1 row-cols-md-3 g-4" th:if="${listings != null}">
 
-        <div class="col" th:each="listing : ${listings}">
-            <div class="card h-100 shadow-sm border-0">
-                <div class="bg-white d-flex align-items-center justify-content-center border-bottom" style="height: 200px;">
-                    <a th:href="@{|/listings/${listing.id}|}" class="text-decoration-none">Chưa có ảnh</a>
-                </div>
+        <!-- ĐÃ SỬA: Gọi thêm biến lx từ @listingDisplay để lấy ảnh đại diện của từng tin đăng -->
+        <div class="col" th:each="listing : ${listings}" th:with="lx=${@listingDisplay.info(listing.id)}">
+            <div class="card h-100 shadow-sm border-0 overflow-hidden">
+
+                <!-- ĐÃ SỬA: Hiển thị ảnh nếu có, nếu không có mới hiện chữ "Chưa có ảnh" -->
+                <a th:href="@{/listings/{id}(id=${listing.id})}"
+                   class="bg-white d-flex align-items-center justify-content-center border-bottom text-decoration-none overflow-hidden"
+                   style="height: 200px;">
+                    <img th:if="${lx != null and lx.primaryImage != null}"
+                         th:src="@{${lx.primaryImage}}"
+                         class="w-100 h-100"
+                         style="object-fit: cover;"
+                         alt="Ảnh tin đăng">
+                    <span th:unless="${lx != null and lx.primaryImage != null}"
+                          class="text-muted small">Chưa có ảnh</span>
+                </a>
+
                 <div class="card-body">
                     <h5 class="card-title text-truncate mb-1" th:text="${listing.title != null ? listing.title : 'Chưa có tiêu đề'}">Tiêu đề</h5>
 
@@ -74,7 +86,7 @@
                     <p class="card-text small text-muted" th:if="${listing.category != null}" th:text="${listing.category.name + ' · Người bán'}">Danh mục · Người bán</p>
                 </div>
 
-                <!-- BỔ SUNG: Phần nút Xem chi tiết ở chân thẻ sản phẩm -->
+                <!-- Phần nút Xem chi tiết ở chân thẻ sản phẩm -->
                 <div class="card-footer bg-transparent border-top-0 pb-3">
                     <a th:href="@{/listings/{id}(id=${listing.id})}" class="btn btn-outline-primary w-100">Xem chi tiết</a>
                 </div>
